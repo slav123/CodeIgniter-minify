@@ -1,26 +1,34 @@
 ======================================
-Img
+CodeIgniter - minify
 
-Simple Code Igniter library to generate
-high quality thumbnails
+Simple CodeIgniter library to compress CSS and JavaScript files on the fly.
 
 by Slawomir Jasinski
 ======================================
 
 Hey everybody,
 
-Library is bases on excellent * Smarty plugin "Thumb" * created in 2005 by 2005 Christoph Erdmann.
-My version is a little bit different, I'm using core from Thumb, and some modification which
-gives me more flexibility to work with it.
+Library is based on few other scripts like http://code.google.com/p/minify/ and it uses
+Google Closure API
 
 DOCUMENTATION:
-Documentation is located at https://github.com/slav123/CodeIgniter-Img/wiki
+Documentation is located at https://github.com/slav123/CodeIgniter-minify
 
 INSTALLATION:
-Just put img.php file in libraries path.
+Just put minify.php file in libraries path, and proper config file.
 
 USING THE LIBRARY:
-Rest of instruction will be provided ASAP
+Create and compress CSS files, define name of compresesed file:
+ $this->minify->css_file = 's.min.css';
+
+define directory to put compressed file:
+ $this->minify->assets_dir = 'assets';
+
+define files to join and compress:
+ $this->minify->css(array('reset.css', 'style.css', 'tinybox.css'));
+
+compress and display compressed fiel with link
+ echo $this->minify->deploy_css(true);
 
 Feel free to send me an email if you have any problems.
 
