@@ -1,0 +1,31 @@
+======================================
+Img
+
+Simple Code Igniter library to generate
+high quality thumbnails
+
+by Slawomir Jasinski
+======================================
+
+Hey everybody,
+
+Library is bases on excellent * Smarty plugin "Thumb" * created in 2005 by 2005 Christoph Erdmann.
+My version is a little bit different, I'm using core from Thumb, and some modification which
+gives me more flexibility to work with it.
+
+DOCUMENTATION:
+Documentation is located at https://github.com/slav123/CodeIgniter-Img/wiki
+
+INSTALLATION:
+Just put img.php file in libraries path.
+
+USING THE LIBRARY:
+Rest of instruction will be provided ASAP
+
+Feel free to send me an email if you have any problems.
+
+
+Thanks,
+-Slawomir Jasinski
+ slav123@gmail.com
+ @slavomirj
