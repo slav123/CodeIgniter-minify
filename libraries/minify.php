@@ -11,7 +11,7 @@
 * @uses http://code.google.com/p/minify/
 *
 * Created:  02-04-2011
-* Last update:
+* Last update: 17-01-2012
 *
 * Description:
 *
@@ -46,7 +46,7 @@ class minify {
 	    $this->css_dir = $this->ci->config->item('css_dir', 'minify');
 
 	if (empty($this->js_dir))
-	    $this->js_dir = $this->ci->config->item('css_dir', 'minify');
+	    $this->js_dir = $this->ci->config->item('js_dir', 'minify');
 
 	if (empty($this->assets_dir))
 	    $this->assets_dir = $this->ci->config->item('assets_dir', 'minify');
