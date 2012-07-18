@@ -12,7 +12,7 @@ Library is based on few other scripts like http://code.google.com/p/minify/ and 
 Google Closure API
 
 DOCUMENTATION:
-Documentation is located at https://github.com/slav123/CodeIgniter-minify
+Documentation is located at http://www.spidersoft.com.au/projects/codeigniter-minify/
 
 INSTALLATION:
 Just put minify.php file in libraries path, and proper config file.

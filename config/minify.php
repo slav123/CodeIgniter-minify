@@ -6,7 +6,7 @@
 *		  slav123@gmail.com
 *         @slavomirj
 *
-* Location: http://github.com/slav123/CodeIgniter-minify/
+* Location: http://www.spidersoft.com.au/projects/codeigniter-minify/
 *
 * Created:  07.02.2011
 *
