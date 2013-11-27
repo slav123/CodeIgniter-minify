@@ -19,7 +19,7 @@
  *
  */
 
-class minify
+class Minify
 {
 
 	/**
@@ -68,7 +68,6 @@ class minify
 		} else {
 			$this->js_file = $this->assets_dir . '/' . $this->js_file;
 		}
-
 	}
 
 	public function css($css)
@@ -140,11 +139,11 @@ class minify
 	public function deploy_css($refresh = false)
 	{
 		if ($refresh) {
-			unlink($this->assets_dir . '/' . $this->css_file);
+			@unlink($this->css_file);
 			$this->join_css();
 		}
 		$this->ci->load->helper('html');
-		return link_tag($this->assets_dir . '/' . $this->css_file);
+		return link_tag($this->css_file);
 	}
 
 	public function deploy_js($refresh = false)
@@ -152,7 +151,7 @@ class minify
 		if ($refresh) {
 			$this->join_js();
 		}
-		return "<script type=\"text/javascript\" src=\"" . base_url() . $this->assets_dir . '/' . $this->js_file . "\"></script>";
+		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
 	}
 
 
@@ -175,7 +174,7 @@ class minify
 		if (! is_writable($this->assets_dir))
 			die("Can't write to assets directory: {$this->assets_dir}");
 
-		$fh = fopen($this->assets_dir . '/' . $this->css_file, 'a');
+		$fh = fopen($this->css_file, 'a');
 		fwrite($fh, $contents);
 		fclose($fh);
 
@@ -197,7 +196,7 @@ class minify
 		if ($this->compress)
 			$contents = $this->_compress_js($contents);
 
-		$fh = fopen($this->assets_dir . '/' . $this->js_file, 'a');
+		$fh = fopen($this->js_file, 'a');
 		fwrite($fh, $contents);
 		fclose($fh);
 
