@@ -19,7 +19,7 @@
  *
  */
 
-class minify
+class Minify
 {
 
 	/**
@@ -68,7 +68,6 @@ class minify
 		} else {
 			$this->js_file = $this->assets_dir . '/' . $this->js_file;
 		}
-
 	}
 
 	public function css($css)
@@ -87,24 +86,17 @@ class minify
 	public function join_css()
 	{
 		$css = $this->css_array;
-		if (file_exists($this->css))
-			$x = filemtime($this->css);
-		else
-			$x = 0;
 
-		$z = 0;
 		if (is_array($css)) {
 			foreach ($css as $c) {
 				$filename = $this->css_dir . "/" . $c;
-				$z = filemtime($filename);
-				if ($z > $x)
+				if (file_exists($filename))
 					$this->_merge_css($filename);
 			}
 		} else {
 			$filename = $this->css_dir . "/" . $css;
-			$z = filemtime($css);
-			if ($z > $x)
-				$this->_merge_css($css);
+			if (file_exists($filename))
+				$this->_merge_css($filename);
 		}
 	}
 
@@ -119,32 +111,39 @@ class minify
 		else
 			$x = 0;
 
-		$z = 0;
+		$flag = false; // flag to check if any of the file was changed to rebuild all the set of files
 		if (is_array($js)) {
 			foreach ($js as $j) {
 				$filename = $this->js_dir . '/' . $j;
-				if (file_exists($filename)) {
-					$z = filemtime($filename);
-					if ($z > $x)
-						$this->_merge_js($filename);
+				if (file_exists($filename) && filemtime($filename) > $x) {
+					$flag = true;
+					break;
 				}
 			}
+			if (!$flag) return; // nothing was changed
+			@unlink($this->js_file);
+			foreach ($js as $j) {
+				$filename = $this->js_dir . '/' . $j;
+				if (file_exists($filename))
+					$this->_merge_js($filename);
+			}
 		} else {
-			$filename = $js;
-			$z = filemtime($js);
-			if ($z > $x)
+			$filename = $this->css_dir . "/" . $js;
+			if (file_exists($filename) && filemtime($filename) > $x) {
+				@unlink($this->js_file);
 				$this->_merge_js($filename);
+			}
 		}
 	}
 
 	public function deploy_css($refresh = false)
 	{
 		if ($refresh) {
-			unlink($this->assets_dir . '/' . $this->css_file);
+			@unlink($this->css_file);
 			$this->join_css();
 		}
 		$this->ci->load->helper('html');
-		return link_tag($this->assets_dir . '/' . $this->css_file);
+		return link_tag($this->css_file);
 	}
 
 	public function deploy_js($refresh = false)
@@ -152,7 +151,7 @@ class minify
 		if ($refresh) {
 			$this->join_js();
 		}
-		return "<script type=\"text/javascript\" src=\"" . base_url() . $this->assets_dir . '/' . $this->js_file . "\"></script>";
+		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
 	}
 
 
@@ -175,7 +174,7 @@ class minify
 		if (! is_writable($this->assets_dir))
 			die("Can't write to assets directory: {$this->assets_dir}");
 
-		$fh = fopen($this->assets_dir . '/' . $this->css_file, 'a');
+		$fh = fopen($this->css_file, 'a');
 		fwrite($fh, $contents);
 		fclose($fh);
 
@@ -197,7 +196,7 @@ class minify
 		if ($this->compress)
 			$contents = $this->_compress_js($contents);
 
-		$fh = fopen($this->assets_dir . '/' . $this->js_file, 'a');
+		$fh = fopen($this->js_file, 'a');
 		fwrite($fh, $contents);
 		fclose($fh);
 
