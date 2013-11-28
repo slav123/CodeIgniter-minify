@@ -19,15 +19,24 @@ Just put minify.php file in libraries path, and proper config file.
 
 USING THE LIBRARY:
 Create and compress CSS files, define name of compresesed file:
- $this->minify->css_file = 's.min.css';
 
-define directory to put compressed file:
- $this->minify->assets_dir = 'assets';
+ 1. Easy way:
 
-define files to join and compress:
- $this->minify->css(array('reset.css', 'style.css', 'tinybox.css'));
+ Configure the library:
+ 	$config['assets_dir'] = 'theme/build'; // output path where the compiled files will be stored
+	$config['css_dir'] = 'theme/css'; // where to look for css files 
+	$config['js_dir'] = 'theme/js'; // where to look for js files
 
-compress and display compressed fiel with link
+Run the library
+ $this->load->library('minify'); //load the library
+ $this->minify->css(array('reset.css', 'style.css', 'tinybox.css')); // add css files
+ $this->minify->js(array('html5.js','main.js')); // add js files
+ $this->minify->deploy_css(true); // bool argument for rebuild css (false means skip rebuilding). Outputs '<link href="path-to-compiled-css" rel="stylesheet" type="text/css" />'.
+ $this->minify->deploy_js(true); // bool argument for rebuild js (false means skip rebuilding). Outputs '<script type="text/javascript" src="path-to-compiled-js"></script>'.
+
+Both deploy functions will return the strings to 
+
+compress and display compressed file with link
  echo $this->minify->deploy_css(true);
 
 Feel free to send me an email if you have any problems.
