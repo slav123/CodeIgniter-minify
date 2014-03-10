@@ -1,103 +1,251 @@
-<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
 /**
- * Name:  minify
+ * Minify Library Class
  *
- * Author: Slawomir Jasinski
- *          slav123@gmail.com
- * @slavomirj
+ * PHP Version 5.3
  *
+ * @category  PHP
+ * @package   Libraryr
+ * @author    Slawomir Jasinski <slav123@gmail.com>
+ * @copyright 2013 All Rights Reserved SpiderSoft
+ * @license   Copyright 2013 All Rights Reserved Imagination
+ * @link      Location: http://github.com/slav123/CodeIgniter-Minify
+ */
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+/**
+ * the Minify LibraryClass
  *
- * Location: http://github.com/slav123/CodeIgniter-Minify
- * @uses http://code.google.com/p/minify/
- *
- * Created:  02-04-2011
- * Last update: 17-01-2012
- *
- * Description:
- *
- * Requirements: PHP5 or above
- *
+ * @category  PHP
+ * @package   Controller
+ * @author    Slawomir Jasinski <slav123@gmail.com>
+ * @copyright 2013 All Rights Reserved SpiderSoft
+ * @license   Copyright 2012 All Rights Reserved SpiderSoft
+ * @link      http://www.SpiderSoft.com,au
  */
 
 class Minify
 {
 
 	/**
-	 * CodeIgniter global
+	 * CodeIgniter global.
 	 *
 	 * @var string
 	 **/
 	protected $ci;
 
+	/**
+	 * @var string
+	 */
 	var $css = '';
+
+	/**
+	 * @var string
+	 */
 	var $js = '';
+
+	/**
+	 * @var array
+	 */
 	var $css_array = array();
+
+	/**
+	 * @var array
+	 */
 	var $js_array = array();
+
+	/**
+	 * @var string
+	 */
 	var $css_file = '';
+
+	/**
+	 * @var string
+	 */
 	var $js_file = '';
-	var $compress = 1;
+
+	/**
+	 * @var int
+	 */
+	var $compress = TRUE;
+
+	/**
+	 * @var
+	 */
 	var $_inHack;
 
+	var $assets_dir = '';
+
+	private $_lmod = array('css', 'js');
+
+	/**
+	 *
+	 */
 	function __construct()
 	{
 		$this->ci =& get_instance();
 		$this->ci->load->config('minify', TRUE);
-		// Do something with $params
 
+		$this->_setup();
+	}
+
+	/**
+	 * some basic setup
+	 *
+	 */
+	private function _setup() {
+
+		// assign variables from confif file
 		if (empty($this->css_dir))
+		{
 			$this->css_dir = $this->ci->config->item('css_dir', 'minify');
+		}
 
+		// check JS dir
 		if (empty($this->js_dir))
+		{
 			$this->js_dir = $this->ci->config->item('js_dir', 'minify');
+		}
 
+		// check general assets dir
 		if (empty($this->assets_dir))
+		{
 			$this->assets_dir = $this->ci->config->item('assets_dir', 'minify');
+			if (!is_writable($this->assets_dir)) {
+				die('Assets directory is not writeable');
+			}
+		}
 
-		if (empty($this->css_file)) {
+		// process CSS file
+		if (empty($this->css_file))
+		{
 			$this->css_file = $this->assets_dir . '/style.css';
+
 			if ($this->compress)
+			{
 				$this->css_file = $this->assets_dir . '/style.min.css';
-		} else {
+			}
+
+			if (file_exists($this->css_file) && ! is_writable($this->css_file)) {
+				die("Can\'t write to CSS file {$this->css_file}");
+			}
+
+			if ( ! file_exists($this->css_file)) {
+				if (! touch($this->css_file)) {
+					die("Can't create file {$this->css_file}");
+				}
+			} else {
+				$this->_lmod['css'] = filemtime($this->css_file);
+			}
+		}
+		else
+		{
 			$this->css_file = $this->assets_dir . '/' . $this->css_file;
 		}
 
-		if (empty($this->js_file)) {
+		if (empty($this->js_file))
+		{
 			$this->js_file = $this->assets_dir . '/js.js';
 			if ($this->compress)
+			{
 				$this->js_file = $this->assets_dir . '/js.min.js';
-		} else {
+			}
+		}
+		else
+		{
 			$this->js_file = $this->assets_dir . '/' . $this->js_file;
 		}
 	}
 
+	/**
+	 * @param $css
+	 */
 	public function css($css)
 	{
 		$this->css_array = $css;
 	}
 
+	/**
+	 * @param $js
+	 */
 	public function js($js)
 	{
 		$this->js_array = $js;
 	}
 
 	/**
-	 * join css files into one file
+	 * scan CSS direcctory and look for changes
+	 *
+	 * @param $type
 	 */
-	public function join_css()
-	{
-		$css = $this->css_array;
-
-		if (is_array($css)) {
-			foreach ($css as $c) {
-				$filename = $this->css_dir . "/" . $c;
-				if (file_exists($filename))
-					$this->_merge_css($filename);
-			}
-		} else {
-			$filename = $this->css_dir . "/" . $css;
-			if (file_exists($filename))
-				$this->_merge_css($filename);
+	public function scan_files($type) {
+		switch ($type) {
+			case 'css':
+				$files_array = $this->css_array;
+				$directory = $this->css_dir;
+				$out_file = $this->css_file;
+			break;
 		}
+
+		// if multiple files
+		if (is_array($files_array))
+		{
+			foreach ($files_array as $file)
+			{
+				$filename = $directory . '/' . $file;
+
+				if (file_exists($filename))
+				{
+					if (filemtime($filename) > $this->_lmod[$type]) {
+						$this->_concat_files($files_array, $directory, $out_file);
+					}
+				} else {
+					die("File {$filename} is missing");
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * add merge files
+	 *
+	 * @param string $file_array input file array
+	 * @param        $directory
+	 * @param string $out_file   output file
+	 *
+	 * @internal param string $filename file name
+	 */
+	private function _concat_files($file_array, $directory, $out_file) {
+
+
+		if ($fh = fopen($out_file, 'w')) {
+			foreach ($file_array as $file_name) {
+
+				$file_name = $directory . '/' . $file_name;
+				$handle   = fopen($file_name, 'r');
+				$contents = fread($handle, filesize($file_name));
+				fclose($handle);
+
+				fwrite($fh, $contents);
+			}
+			fclose($fh);
+		} else {
+			die("Can't write to {$out_file}");
+		}
+
+		if ($this->compress) {
+			$handle   = fopen($out_file, 'r');
+			$contents = fread($handle, filesize($file_name));
+			fclose($handle);
+
+			$handle   = fopen($out_file, 'w');
+			//fwrite($handle, $this->_process($contents));
+			fwrite($handle, $this->_new_process($contents));
+			fclose($handle);
+		}
+
 	}
 
 	/**
@@ -107,81 +255,82 @@ class Minify
 	{
 		$js = $this->js_array;
 		if (file_exists($this->js_file))
+		{
 			$x = filemtime($this->js_file);
+		}
 		else
+		{
 			$x = 0;
+		}
 
-		$flag = false; // flag to check if any of the file was changed to rebuild all the set of files
-		if (is_array($js)) {
-			foreach ($js as $j) {
+		$flag = FALSE; // flag to check if any of the file was changed to rebuild all the set of files
+		if (is_array($js))
+		{
+			foreach ($js as $j)
+			{
 				$filename = $this->js_dir . '/' . $j;
-				if (file_exists($filename) && filemtime($filename) > $x) {
-					$flag = true;
+				if (file_exists($filename) && filemtime($filename) > $x)
+				{
+					$flag = TRUE;
 					break;
 				}
 			}
-			if (!$flag) return; // nothing was changed
+			if (! $flag) return; // nothing was changed
 			@unlink($this->js_file);
-			foreach ($js as $j) {
+			foreach ($js as $j)
+			{
 				$filename = $this->js_dir . '/' . $j;
 				if (file_exists($filename))
+				{
 					$this->_merge_js($filename);
+				}
 			}
-		} else {
+		}
+		else
+		{
 			$filename = $this->css_dir . "/" . $js;
-			if (file_exists($filename) && filemtime($filename) > $x) {
+			if (file_exists($filename) && filemtime($filename) > $x)
+			{
 				@unlink($this->js_file);
 				$this->_merge_js($filename);
 			}
 		}
 	}
 
-	public function deploy_css($refresh = false)
+	/**
+	 * deploy and minify CSS
+	 *
+	 * @return mixed
+	 */
+	public function deploy_css()
 	{
-		if ($refresh) {
-			@unlink($this->css_file);
-			$this->join_css();
-		}
+
+		$this->scan_files('css');
+
 		$this->ci->load->helper('html');
+
 		return link_tag($this->css_file);
 	}
 
-	public function deploy_js($refresh = false)
+	/**
+	 * @param bool $refresh
+	 *
+	 * @return string
+	 */
+	public function deploy_js($refresh = FALSE)
 	{
-		if ($refresh) {
+		if ($refresh)
+		{
 			$this->join_js();
 		}
+
 		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
 	}
 
 
-	/**
-	 *
-	 * join all css files into one big file
-	 *
-	 * @param string $filename name of source file
-	 */
-	private function _merge_css($filename)
-	{
 
-		$handle = fopen($filename, "r");
-		$contents = fread($handle, filesize($filename));
-		fclose($handle);
-
-		if ($this->compress)
-			$contents = $this->_process($contents);
-
-		if (! is_writable($this->assets_dir))
-			die("Can't write to assets directory: {$this->assets_dir}");
-
-		$fh = fopen($this->css_file, 'a');
-		fwrite($fh, $contents);
-		fclose($fh);
-
-	}
 
 	/**
-	 *
 	 * join all js files into one big file
 	 *
 	 * @param string $filename name of source file
@@ -189,12 +338,14 @@ class Minify
 	private function _merge_js($filename)
 	{
 
-		$handle = fopen($filename, "r");
+		$handle   = fopen($filename, "r");
 		$contents = fread($handle, filesize($filename));
 		fclose($handle);
 
 		if ($this->compress)
+		{
 			$contents = $this->_compress_js($contents);
+		}
 
 		$fh = fopen($this->js_file, 'a');
 		fwrite($fh, $contents);
@@ -202,18 +353,11 @@ class Minify
 
 	}
 
-	private function _clear_css()
-	{
-		if (file_exists($this->css))
-			unlink($this->css);
-	}
-
-	private function _clear_js()
-	{
-		if (file_exists($this->js))
-			unlink($this->js);
-	}
-
+	/**
+	 * @param $script
+	 *
+	 * @return mixed
+	 */
 	private function _compress_js($script)
 	{
 		$ch = curl_init('http://closure-compiler.appspot.com/compile');
@@ -229,10 +373,15 @@ class Minify
 
 	}
 
+	private function _new_process($data) {
+		include_once('cssmin-v3.0.1.php');
+		return CssMin::minify($data);
+	}
+
 	/**
-	 * @package Minify
+	 * @package  Minify
 	 * @authohor Stephen Clay <steve@mrclay.org>
-	 * @author http://code.google.com/u/1stvamp/ (Issue 64 patch)
+	 * @author   http://code.google.com/u/1stvamp/ (Issue 64 patch)
 	 */
 
 	private function _process($css)
@@ -346,21 +495,25 @@ class Minify
 	protected function _commentCB($m)
 	{
 		$hasSurroundingWs = (trim($m[0]) !== $m[1]);
-		$m = $m[1];
+		$m                = $m[1];
 		// $m is the comment content w/o the surrounding tokens,
 		// but the return value will replace the entire comment.
-		if ($m === 'keep') {
+		if ($m === 'keep')
+		{
 			return '/**/';
 		}
-		if ($m === '" "') {
+		if ($m === '" "')
+		{
 			// component of http://tantek.com/CSS/Examples/midpass.html
 			return '/*" "*/';
 		}
-		if (preg_match('@";\\}\\s*\\}/\\*\\s+@', $m)) {
+		if (preg_match('@";\\}\\s*\\}/\\*\\s+@', $m))
+		{
 			// component of http://tantek.com/CSS/Examples/midpass.html
 			return '/*";}}/* */';
 		}
-		if ($this->_inHack) {
+		if ($this->_inHack)
+		{
 			// inversion: feeding only to one browser
 			if (preg_match('@
                     ^/               # comment started like /*/
@@ -369,25 +522,33 @@ class Minify
                     \\s*
                     /\\*             # ends like /*/ or /**/
                 @x', $m, $n)
-			) {
+			)
+			{
 				// end hack mode after this comment, but preserve the hack and comment content
-				$this->_inHack = false;
+				$this->_inHack = FALSE;
+
 				return "/*/{$n[1]}/**/";
 			}
 		}
-		if (substr($m, - 1) === '\\') { // comment ends like \*/
+		if (substr($m, - 1) === '\\')
+		{ // comment ends like \*/
 			// begin hack mode and preserve hack
-			$this->_inHack = true;
+			$this->_inHack = TRUE;
+
 			return '/*\\*/';
 		}
-		if ($m !== '' && $m[0] === '/') { // comment looks like /*/ foo */
+		if ($m !== '' && $m[0] === '/')
+		{ // comment looks like /*/ foo */
 			// begin hack mode and preserve hack
-			$this->_inHack = true;
+			$this->_inHack = TRUE;
+
 			return '/*/*/';
 		}
-		if ($this->_inHack) {
+		if ($this->_inHack)
+		{
 			// a regular comment ends hack mode but should be preserved
-			$this->_inHack = false;
+			$this->_inHack = FALSE;
+
 			return '/**/';
 		}
 		// Issue 107: if there's any surrounding whitespace, it may be important, so
@@ -415,6 +576,7 @@ class Minify
                 )
                 \\s*
             /x', '$1', $m[1]);
+
 		return 'font-family:' . $m[1] . $m[2];
 	}
 }
