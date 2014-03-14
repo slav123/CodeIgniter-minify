@@ -61,4 +61,7 @@ In view
 
 Report theme here: <https://github.com/slav123/CodeIgniter-minify/issues>
 
+### Sponsors
+
+![PHP Storm](http://www.jetbrains.com/img/banners/ps7.png)
 
