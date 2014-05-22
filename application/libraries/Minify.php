@@ -24,7 +24,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @license   Copyright 2012 All Rights Reserved SpiderSoft
  * @link      http://www.SpiderSoft.com,au
  */
-
 class Minify
 {
 
@@ -94,7 +93,8 @@ class Minify
 	 * some basic setup
 	 *
 	 */
-	private function _setup() {
+	private function _setup()
+	{
 
 		// assign variables from confif file
 		if (empty($this->css_dir))
@@ -112,7 +112,8 @@ class Minify
 		if (empty($this->assets_dir))
 		{
 			$this->assets_dir = $this->ci->config->item('assets_dir', 'minify');
-			if (!is_writable($this->assets_dir)) {
+			if (!is_writable($this->assets_dir))
+			{
 				die('Assets directory is not writeable');
 			}
 		}
@@ -127,15 +128,20 @@ class Minify
 				$this->css_file = $this->assets_dir . '/style.min.css';
 			}
 
-			if (file_exists($this->css_file) && ! is_writable($this->css_file)) {
+			if (file_exists($this->css_file) && !is_writable($this->css_file))
+			{
 				die("Can\'t write to CSS file {$this->css_file}");
 			}
 
-			if ( ! file_exists($this->css_file)) {
-				if (! touch($this->css_file)) {
+			if (!file_exists($this->css_file))
+			{
+				if (!touch($this->css_file))
+				{
 					die("Can't create file {$this->css_file}");
 				}
-			} else {
+			}
+			else
+			{
 				$this->_lmod['css'] = filemtime($this->css_file);
 			}
 		}
@@ -179,18 +185,21 @@ class Minify
 	 *
 	 * @param $type
 	 */
-	public function scan_files($type) {
-		switch ($type) {
+	public function scan_files($type, $force)
+	{
+		switch ($type)
+		{
 			case 'css':
 				$files_array = $this->css_array;
-				$directory = $this->css_dir;
-				$out_file = $this->css_file;
-			break;
+				$directory   = $this->css_dir;
+				$out_file    = $this->css_file;
+				break;
 		}
 
 		// if multiple files
 		if (is_array($files_array))
 		{
+			$compile = FALSE;
 			foreach ($files_array as $file)
 			{
 				$filename = $directory . '/' . $file;
@@ -198,11 +207,17 @@ class Minify
 				if (file_exists($filename))
 				{
 					if (filemtime($filename) > $this->_lmod[$type]) {
-						$this->_concat_files($files_array, $directory, $out_file);
+						$compile = TRUE;
 					}
-				} else {
+				}
+				else
+				{
 					die("File {$filename} is missing");
 				}
+			}
+			if ($compile || $force)
+			{
+				$this->_concat_files($files_array, $directory, $out_file);
 			}
 		}
 
@@ -217,32 +232,43 @@ class Minify
 	 *
 	 * @internal param string $filename file name
 	 */
-	private function _concat_files($file_array, $directory, $out_file) {
+	private function _concat_files($file_array, $directory, $out_file)
+	{
 
-
-		if ($fh = fopen($out_file, 'w')) {
-			foreach ($file_array as $file_name) {
-
+		if ($fh = fopen($out_file, 'w'))
+		{
+			foreach ($file_array as $file_name)
+			{
 				$file_name = $directory . '/' . $file_name;
-				$handle   = fopen($file_name, 'r');
-				$contents = fread($handle, filesize($file_name));
+				$handle    = fopen($file_name, 'r');
+				$contents  = fread($handle, filesize($file_name));
 				fclose($handle);
 
 				fwrite($fh, $contents);
 			}
 			fclose($fh);
-		} else {
+		}
+		else
+		{
 			die("Can't write to {$out_file}");
 		}
 
-		if ($this->compress) {
+
+
+		if ($this->compress)
+		{
 			$handle   = fopen($out_file, 'r');
-			$contents = fread($handle, filesize($file_name));
+			$contents = fread($handle, filesize($out_file));
 			fclose($handle);
 
-			$handle   = fopen($out_file, 'w');
+			$handle = fopen($out_file, 'w');
+			if (preg_match("/.css$/i", $out_file))
+			{
+				$engine = $this->ci->config->item('compression_engine', 'minify');
+				$engine = "_{$engine['css']}";
+			}
 			//fwrite($handle, $this->_process($contents));
-			fwrite($handle, $this->_new_process($contents));
+			fwrite($handle, call_user_func(array($this, $engine), $contents));
 			fclose($handle);
 		}
 
@@ -275,7 +301,7 @@ class Minify
 					break;
 				}
 			}
-			if (! $flag) return; // nothing was changed
+			if (!$flag) return; // nothing was changed
 			@unlink($this->js_file);
 			foreach ($js as $j)
 			{
@@ -302,10 +328,10 @@ class Minify
 	 *
 	 * @return mixed
 	 */
-	public function deploy_css()
+	public function deploy_css($force = TRUE)
 	{
 
-		$this->scan_files('css');
+		$this->scan_files('css', $force);
 
 		$this->ci->load->helper('html');
 
@@ -326,8 +352,6 @@ class Minify
 
 		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
 	}
-
-
 
 
 	/**
@@ -373,18 +397,25 @@ class Minify
 
 	}
 
-	private function _new_process($data) {
-		include_once('cssmin-v3.0.1.php');
+	/**
+	 * cssmin compression engine
+	 */
+	private function _cssmin($data)
+	{
+		require_once('cssmin-v3.0.1.php');
+
 		return CssMin::minify($data);
 	}
 
 	/**
+	 * Minify compression engine
+	 *
 	 * @package  Minify
 	 * @authohor Stephen Clay <steve@mrclay.org>
 	 * @author   http://code.google.com/u/1stvamp/ (Issue 64 patch)
 	 */
 
-	private function _process($css)
+	private function _minify($css)
 	{
 		$css = str_replace("\r\n", "\n", $css);
 
