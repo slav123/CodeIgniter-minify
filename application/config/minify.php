@@ -28,8 +28,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $config['assets_dir'] = 'assets';
 $config['css_dir'] = 'assets/css';
+
+$config['compression_engine'] = array('css' => 'minify', 'js' => 'closure-compiler'); // cssmin
+
 $config['js_dir'] = 'assets/js';
-$config['js_compression_engine'] = 'minify'; // cssmin
+
+
 
 // End of file minify.php
 // Location: ./application/config/minify.php
