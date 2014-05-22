@@ -51,6 +51,13 @@ In view
     //Outputs '<script type="text/javascript" src="path-to-compiled-js"></script>'.
     
 ### Changelog
+
+23 May 2014
+
+* you can chose your compression engine library in config file (CSS only)
+* speed optimisations
+* force CSS rewrite using $this->minify->deploy_css(TRUE);
+
 11 Mar 2014
 
 * completly rewrite CSS parser - uses cssmin compress CSS,
