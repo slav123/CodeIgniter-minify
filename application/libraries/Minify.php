@@ -152,11 +152,22 @@ class Minify
 
 		if (empty($this->js_file))
 		{
-			$this->js_file = $this->assets_dir . '/js.js';
+			$this->js_file = $this->assets_dir . '/script.js';
 			if ($this->compress)
 			{
-				$this->js_file = $this->assets_dir . '/js.min.js';
+				$this->js_file = $this->assets_dir . '/script.min.js';
 			}
+
+			if (!file_exists($this->js_file))
+			{
+				if (!touch($this->js_file))
+				{
+					die("Can't create file {$this->js_file}");
+				}
+			} else {
+				$this->_lmod['js'] = filemtime($this->js_file);
+			}
+
 		}
 		else
 		{
@@ -194,6 +205,10 @@ class Minify
 				$directory   = $this->css_dir;
 				$out_file    = $this->css_file;
 				break;
+			case 'js':
+				$files_array = $this->js_array;
+				$directory   = $this->js_dir;
+				$out_file    = $this->js_file;
 		}
 
 		// if multiple files
@@ -262,11 +277,17 @@ class Minify
 			fclose($handle);
 
 			$handle = fopen($out_file, 'w');
-			if (preg_match("/.css$/i", $out_file))
-			{
-				$engine = $this->ci->config->item('compression_engine', 'minify');
+
+			$engine = $this->ci->config->item('compression_engine', 'minify');
+			if (preg_match("/.css$/i", $out_file)) {
 				$engine = "_{$engine['css']}";
 			}
+
+			if (preg_match("/.js$/i", $out_file)) {
+				$engine = $this->ci->config->item('compression_engine', 'minify');
+				$engine = "_{$engine['js']}";
+			}
+
 			//fwrite($handle, $this->_process($contents));
 			fwrite($handle, call_user_func(array($this, $engine), $contents));
 			fclose($handle);
@@ -339,50 +360,27 @@ class Minify
 	}
 
 	/**
+	 * deploy js
+	 *
 	 * @param bool $refresh
 	 *
 	 * @return string
 	 */
-	public function deploy_js($refresh = FALSE)
+	public function deploy_js($force = FALSE)
 	{
-		if ($refresh)
-		{
-			$this->join_js();
-		}
+		$this->scan_files('js', $force);
 
 		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
 	}
 
-
 	/**
-	 * join all js files into one big file
+	 * compress javascript using closure compiler service
 	 *
-	 * @param string $filename name of source file
-	 */
-	private function _merge_js($filename)
-	{
-
-		$handle   = fopen($filename, "r");
-		$contents = fread($handle, filesize($filename));
-		fclose($handle);
-
-		if ($this->compress)
-		{
-			$contents = $this->_compress_js($contents);
-		}
-
-		$fh = fopen($this->js_file, 'a');
-		fwrite($fh, $contents);
-		fclose($fh);
-
-	}
-
-	/**
-	 * @param $script
+	 * @param string $script source to compress
 	 *
 	 * @return mixed
 	 */
-	private function _compress_js($script)
+	private function _closurecompiler($script)
 	{
 		$ch = curl_init('http://closure-compiler.appspot.com/compile');
 
