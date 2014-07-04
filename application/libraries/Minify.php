@@ -230,6 +230,12 @@ class Minify
 					die("File {$filename} is missing");
 				}
 			}
+
+			// check if this is init build
+			if (filesize($out_file) == 0) {
+				$force = true;
+			}
+
 			if ($compile || $force)
 			{
 				$this->_concat_files($files_array, $directory, $out_file);

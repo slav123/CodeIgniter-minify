@@ -5,7 +5,11 @@
 	<title>Welcome to CodeIgniter</title>
 	<?php // add css files
 		$this->minify->css(array('browser-specific.css', 'style.css'));
-		echo $this->minify->deploy_css(true);
+		echo $this->minify->deploy_css();
+
+		$this->minify->js(array('helpers.js', 'jqModal.js'));
+		echo $this->minify->deploy_js();
+
 	?>
 </head>
 <body>
