@@ -26,6 +26,10 @@ All directories needs to be writeable.
     // where to look for js files 
 	$config['js_dir'] = 'assets/js'; 
 
+	// compression engine setting
+	$config['compression_engine'] = array('css' => 'minify', 'js' => 'closurecompiler'); // cssmin
+
+
 ####Run the library
 In the controller
 
@@ -38,7 +42,7 @@ In view
 	$this->minify->css(array('reset.css', 'style.css', 'tinybox.css')); 
 	
 	// add js files
-	$this->minify->js(array('html5.js','main.js')); 
+	$this->minify->js(array('html5.js', 'main.js')); 
 	
 	// bool argument for rebuild css (false means skip rebuilding). 
 	echo $this->minify->deploy_css();
@@ -46,11 +50,15 @@ In view
     //Output: '<link href="path-to-compiled-css" rel="stylesheet" type="text/css" />'
     
     // bool argument for rebuild js (false means skip rebuilding). 
-    $this->minify->deploy_js(true); 
+    $this->minify->deploy_js(); 
  
     //Outputs '<script type="text/javascript" src="path-to-compiled-js"></script>'.
     
 ### Changelog
+
+4 July 2014
+* sample JavaScript files to see how it works 
+* detection of empty JS file couses force refresh
 
 23 May 2014
 
