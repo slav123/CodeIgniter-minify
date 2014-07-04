@@ -167,8 +167,6 @@ function setCaretPosition(elemId, caretPos) {
     }
 }
 
-
-
 function setStartTimeNow(textarea) {
     var d = new Date();
     var currYear = d.getFullYear();

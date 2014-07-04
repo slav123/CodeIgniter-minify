@@ -278,12 +278,15 @@ class Minify
 
 		if ($this->compress)
 		{
+			// read output file contenst (already concated)
 			$handle   = fopen($out_file, 'r');
 			$contents = fread($handle, filesize($out_file));
 			fclose($handle);
 
+			// recreate file
 			$handle = fopen($out_file, 'w');
 
+			//get engine file from config file
 			$engine = $this->ci->config->item('compression_engine', 'minify');
 			if (preg_match("/.css$/i", $out_file)) {
 				$engine = "_{$engine['css']}";
@@ -293,6 +296,8 @@ class Minify
 				$engine = $this->ci->config->item('compression_engine', 'minify');
 				$engine = "_{$engine['js']}";
 			}
+
+			// get function name to compress file
 
 			//fwrite($handle, $this->_process($contents));
 			fwrite($handle, call_user_func(array($this, $engine), $contents));
