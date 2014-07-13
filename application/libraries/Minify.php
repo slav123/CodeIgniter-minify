@@ -76,7 +76,7 @@ class Minify
 
 	var $assets_dir = '';
 
-	private $_lmod = array('css', 'js');
+	private $_lmod = array('css' => '', 'js' => '');
 
 	/**
 	 *
