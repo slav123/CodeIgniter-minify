@@ -56,6 +56,10 @@ In view
     
 ### Changelog
 
+14 July
+* small bug fixes in JS compression
+
+
 4 July 2014
 * sample JavaScript files to see how it works 
 * detection of empty JS file couses force refresh
