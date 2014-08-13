@@ -7,8 +7,8 @@
  * @category  PHP
  * @package   Libraryr
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2013 All Rights Reserved SpiderSoft
- * @license   Copyright 2013 All Rights Reserved Imagination
+ * @copyright 2014 All Rights Reserved SpiderSoft
+ * @license   Copyright 2014 All Rights Reserved SpiderSoft
  * @link      Location: http://github.com/slav123/CodeIgniter-Minify
  */
 
@@ -20,9 +20,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2013 All Rights Reserved SpiderSoft
- * @license   Copyright 2012 All Rights Reserved SpiderSoft
- * @link      http://www.SpiderSoft.com,au
+ * @copyright 2014 All Rights Reserved SpiderSoft
+ * @license   Copyright 2014 All Rights Reserved SpiderSoft
+ * @link      http://www.spidersoft.com.au
  */
 class Minify
 {
