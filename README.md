@@ -50,7 +50,7 @@ In view
     //Output: '<link href="path-to-compiled-css" rel="stylesheet" type="text/css" />'
     
     // bool argument for rebuild js (false means skip rebuilding). 
-    $this->minify->deploy_js(); 
+    echo $this->minify->deploy_js(); 
  
     //Outputs '<script type="text/javascript" src="path-to-compiled-js"></script>'.
     
