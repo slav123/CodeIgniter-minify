@@ -381,7 +381,7 @@ class Minify
 	{
 		$this->scan_files('js', $force);
 
-		return "<script type=\"text/javascript\" src=\"" . base_url() . '/' . $this->js_file . "\"></script>";
+		return '<script type="text/javascript" src="' . base_url($this->js_file) . '"></script>';
 	}
 
 	/**
