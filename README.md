@@ -52,11 +52,14 @@ In view
     // bool argument for rebuild js (false means skip rebuilding). 
     echo $this->minify->deploy_js(); 
  
-    //Outputs '<script type="text/javascript" src="path-to-compiled-js"></script>'.
+    //Output: '<script type="text/javascript" src="path-to-compiled-js"></script>'.
     
 ### Changelog
 
-14 July
+13 Oct 2014
+* changed way of generating JS file
+
+14 July 2014
 * small bug fixes in JS compression
 
 
