@@ -7,8 +7,8 @@
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2014 All Rights Reserved SpiderSoft
- * @license   Copyright 2013 All Rights Reserved SpiderSoft
+ * @copyright 2015 All Rights Reserved SpiderSoft
+ * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      http://www.spidersoft.com.au/projects/codeigniter-minify/
  */
 
@@ -21,15 +21,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2014 All Rights Reserved SpiderSoft
- * @license   Copyright 2012 All Rights Reserved SpiderSoft
+ * @copyright 2015 All Rights Reserved SpiderSoft
+ * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      http://www.spidersoft.com.au/projects/codeigniter-minify/
  */
 
 $config['assets_dir'] = 'assets';
-$config['css_dir'] = 'assets/css';
+$config['css_dir']    = 'assets/css';
 
-$config['compression_engine'] = array('css' => 'minify', 'js' => 'closurecompiler'); // cssmin
+$config['compression_engine'] = array(
+	'css' => 'minify', // minify || cssmin
+	'js'  => 'closurecompiler' // jsmin || closurecompiler || jsminplus
+);
 
 $config['js_dir'] = 'assets/js';
 

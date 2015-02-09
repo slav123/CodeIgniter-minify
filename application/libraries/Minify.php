@@ -358,6 +358,8 @@ class Minify
 	/**
 	 * deploy and minify CSS
 	 *
+	 * @param bool $force
+	 *
 	 * @return mixed
 	 */
 	public function deploy_css($force = TRUE)
@@ -373,7 +375,7 @@ class Minify
 	/**
 	 * deploy js
 	 *
-	 * @param bool $refresh
+	 * @param bool $force
 	 *
 	 * @return string
 	 */
@@ -402,12 +404,40 @@ class Minify
 		curl_close($ch);
 
 		return $output;
+	}
 
+	/**
+	 * implements jsmin as alternavive to closure compiler
+	 *
+	 * @param $data
+	 *
+	 * @return string
+	 */
+	private function _jsmin($data) {
+		require_once('JSMin.php');
 
+		return JSMin::minify($data);
+	}
+
+	/**
+	 * implements jsminplus as alternavive to closure compiler
+	 *
+	 * @param $data
+	 *
+	 * @return string
+	 */
+	private function _jsminplus($data) {
+		require_once('JSMinPlus.php');
+
+		return JSMinPlus::minify($data);
 	}
 
 	/**
 	 * cssmin compression engine
+	 *
+	 * @param $data
+	 *
+	 * @return string
 	 */
 	private function _cssmin($data)
 	{

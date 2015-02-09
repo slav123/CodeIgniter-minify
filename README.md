@@ -56,12 +56,15 @@ In view
     
 ### Changelog
 
+09 Feb 2015
+* 2 new engines to compres JS files
+* documentation update
+
 13 Oct 2014
 * changed way of generating JS file
 
 14 July 2014
 * small bug fixes in JS compression
-
 
 4 July 2014
 * sample JavaScript files to see how it works 
