@@ -55,14 +55,18 @@ class Minify
 	var $js_array = array();
 
 	/**
+	 * Public space for JS file name
+	 *
 	 * @var string
 	 */
-	var $css_file = '';
+	public $js_file = 'scripts.js', $css_file = 'styles.css', $css_dir, $js_dir;
 
 	/**
-	 * @var string
+	 * Private js file name with path
+	 *
+	 * @var
 	 */
-	var $js_file = '';
+	private $_js_file, $_css_file;
 
 	/**
 	 * @var int
@@ -76,14 +80,14 @@ class Minify
 
 	var $assets_dir = '';
 
-	private $_lmod = array('css' => '', 'js' => '');
+	private $_lmod = array('css' => 0, 'js' => 0);
 
 	/**
 	 *
 	 */
 	function __construct()
 	{
-		$this->ci =& get_instance();
+		$this->ci = get_instance();
 		$this->ci->load->config('minify', TRUE);
 
 		$this->_setup();
@@ -112,67 +116,68 @@ class Minify
 		if (empty($this->assets_dir))
 		{
 			$this->assets_dir = $this->ci->config->item('assets_dir', 'minify');
-			if (!is_writable($this->assets_dir))
+			if ( ! is_writable($this->assets_dir))
 			{
-				die('Assets directory is not writeable');
+				die("Assets directory {$this->assets_dir} is not writeable");
 			}
 		}
 
-		// process CSS file
-		if (empty($this->css_file))
+		$this->_set('js_file', $this->js_file);
+		$this->_set('css_file', $this->css_file);
+
+	}
+
+	private function _set($name, $value)
+	{
+
+		switch ($name)
 		{
-			$this->css_file = $this->assets_dir . '/style.css';
+			case 'js_file':
 
-			if ($this->compress)
-			{
-				$this->css_file = $this->assets_dir . '/style.min.css';
-			}
-
-			if (file_exists($this->css_file) && !is_writable($this->css_file))
-			{
-				die("Can\'t write to CSS file {$this->css_file}");
-			}
-
-			if (!file_exists($this->css_file))
-			{
-				if (!touch($this->css_file))
+				if ($this->compress)
 				{
-					die("Can't create file {$this->css_file}");
+					$value = str_replace('.js', '.min.js', $value);
 				}
-			}
-			else
-			{
-				$this->_lmod['css'] = filemtime($this->css_file);
-			}
-		}
-		else
-		{
-			$this->css_file = $this->assets_dir . '/' . $this->css_file;
-		}
 
-		if (empty($this->js_file))
-		{
-			$this->js_file = $this->assets_dir . '/script.js';
-			if ($this->compress)
-			{
-				$this->js_file = $this->assets_dir . '/script.min.js';
-			}
+				$this->_js_file = $this->assets_dir . '/' . $value;
 
-			if (!file_exists($this->js_file))
-			{
-				if (!touch($this->js_file))
+				if ( ! file_exists($this->_js_file) && ! touch($this->_js_file))
 				{
-					die("Can't create file {$this->js_file}");
-				}
-			} else {
-				$this->_lmod['js'] = filemtime($this->js_file);
-			}
+					die("Can not create file {$this->_js_file}");
 
+				}
+				else
+				{
+					$this->_lmod['js'] = filemtime($this->_js_file);
+				}
+
+				break;
+			case 'css_file':
+
+				if ($this->compress)
+				{
+					$value = str_replace('.css', '.min.css', $value);
+				}
+
+				$this->_css_file = $this->assets_dir . '/' . $value;
+
+				if ( ! file_exists($this->_css_file) && !touch($this->_css_file))
+				{
+					die("Can not create file {$this->_css_file}");
+				}
+				else
+				{
+					try
+					{
+						$this->_lmod['css'] = filemtime($this->_css_file);
+					} catch (Exception $e) {
+						echo $e->getMessage();
+					}
+				}
+				break;
 		}
-		else
-		{
-			$this->js_file = $this->assets_dir . '/' . $this->js_file;
-		}
+
+
 	}
 
 	/**
@@ -194,7 +199,8 @@ class Minify
 	/**
 	 * scan CSS direcctory and look for changes
 	 *
-	 * @param $type
+	 * @param string $type  css | js
+	 * @param bool   $force rewrite no mather what
 	 */
 	public function scan_files($type, $force)
 	{
@@ -203,12 +209,12 @@ class Minify
 			case 'css':
 				$files_array = $this->css_array;
 				$directory   = $this->css_dir;
-				$out_file    = $this->css_file;
+				$out_file    = $this->_css_file;
 				break;
 			case 'js':
 				$files_array = $this->js_array;
 				$directory   = $this->js_dir;
-				$out_file    = $this->js_file;
+				$out_file    = $this->_js_file;
 		}
 
 		// if multiple files
@@ -221,7 +227,8 @@ class Minify
 
 				if (file_exists($filename))
 				{
-					if (filemtime($filename) > $this->_lmod[$type]) {
+					if (filemtime($filename) > $this->_lmod[$type])
+					{
 						$compile = TRUE;
 					}
 				}
@@ -232,8 +239,9 @@ class Minify
 			}
 
 			// check if this is init build
-			if (filesize($out_file) == 0) {
-				$force = true;
+			if (file_exists($out_file) && filesize($out_file) === 0)
+			{
+				$force = TRUE;
 			}
 
 			if ($compile || $force)
@@ -275,7 +283,6 @@ class Minify
 		}
 
 
-
 		if ($this->compress)
 		{
 			// read output file contenst (already concated)
@@ -288,11 +295,13 @@ class Minify
 
 			//get engine file from config file
 			$engine = $this->ci->config->item('compression_engine', 'minify');
-			if (preg_match("/.css$/i", $out_file)) {
+			if (preg_match("/.css$/i", $out_file))
+			{
 				$engine = "_{$engine['css']}";
 			}
 
-			if (preg_match("/.js$/i", $out_file)) {
+			if (preg_match("/.js$/i", $out_file))
+			{
 				$engine = $this->ci->config->item('compression_engine', 'minify');
 				$engine = "_{$engine['js']}";
 			}
@@ -307,7 +316,7 @@ class Minify
 	}
 
 	/**
-	 * grab css files into one file
+	 * grab js files into one file
 	 */
 	public function join_js()
 	{
@@ -333,7 +342,10 @@ class Minify
 					break;
 				}
 			}
-			if (!$flag) return; // nothing was changed
+			if ( ! $flag)
+			{
+				return;
+			} // nothing was changed
 			@unlink($this->js_file);
 			foreach ($js as $j)
 			{
@@ -358,32 +370,43 @@ class Minify
 	/**
 	 * deploy and minify CSS
 	 *
-	 * @param bool $force
+	 * @param bool $force     force to rewrite file
+	 * @param null $file_name file name to create
 	 *
 	 * @return mixed
 	 */
-	public function deploy_css($force = TRUE)
+	public function deploy_css($force = TRUE, $file_name = NULL)
 	{
+
+		if ( ! is_null($file_name))
+		{
+			$this->_set('css_file', $file_name);
+		}
 
 		$this->scan_files('css', $force);
 
 		$this->ci->load->helper('html');
 
-		return link_tag($this->css_file);
+		return link_tag($this->_css_file);
 	}
 
 	/**
 	 * deploy js
 	 *
-	 * @param bool $force
+	 * @param bool $force     force rewriting js file
+	 * @param null $file_name file name
 	 *
 	 * @return string
 	 */
-	public function deploy_js($force = FALSE)
+	public function deploy_js($force = FALSE, $file_name = NULL)
 	{
+		if ( ! is_null($file_name))
+		{
+			$this->_set('js_file', $file_name);
+		}
 		$this->scan_files('js', $force);
 
-		return '<script type="text/javascript" src="' . base_url($this->js_file) . '"></script>';
+		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
 	}
 
 	/**
@@ -413,7 +436,8 @@ class Minify
 	 *
 	 * @return string
 	 */
-	private function _jsmin($data) {
+	private function _jsmin($data)
+	{
 		require_once('JSMin.php');
 
 		return JSMin::minify($data);
@@ -426,7 +450,8 @@ class Minify
 	 *
 	 * @return string
 	 */
-	private function _jsminplus($data) {
+	private function _jsminplus($data)
+	{
 		require_once('JSMinPlus.php');
 
 		return JSMinPlus::minify($data);
@@ -468,8 +493,7 @@ class Minify
 		$css = preg_replace('@:\\s*/\\*\\s*\\*/@', ':/*keep*/', $css);
 
 		// apply callback to all valid comments (and strip out surrounding ws
-		$css = preg_replace_callback('@\\s*/\\*([\\s\\S]*?)\\*/\\s*@'
-			, array($this, '_commentCB'), $css);
+		$css = preg_replace_callback('@\\s*/\\*([\\s\\S]*?)\\*/\\s*@', array($this, '_commentCB'), $css);
 
 		// remove ws around { } and last semicolon in declaration block
 		$css = preg_replace('/\\s*{\\s*/', '{', $css);
@@ -510,16 +534,13 @@ class Minify
                 \\s*
                 [^~>+,\\s]+      # selector part
                 {                # open declaration block
-            /x'
-			, array($this, '_selectorsCB'), $css);
+            /x', array($this, '_selectorsCB'), $css);
 
 		// minimize hex colors
-		$css = preg_replace('/([^=])#([a-f\\d])\\2([a-f\\d])\\3([a-f\\d])\\4([\\s;\\}])/i'
-			, '$1#$2$3$4$5', $css);
+		$css = preg_replace('/([^=])#([a-f\\d])\\2([a-f\\d])\\3([a-f\\d])\\4([\\s;\\}])/i', '$1#$2$3$4$5', $css);
 
 		// remove spaces between font families
-		$css = preg_replace_callback('/font-family:([^;}]+)([;}])/'
-			, array($this, '_fontFamilyCB'), $css);
+		$css = preg_replace_callback('/font-family:([^;}]+)([;}])/', array($this, '_fontFamilyCB'), $css);
 
 		$css = preg_replace('/@import\\s+url/', '@import url', $css);
 
@@ -533,8 +554,7 @@ class Minify
 		$css = preg_replace('/
             ((?:padding|margin|border|outline):\\d+(?:px|em)?) # 1 = prop : 1st numeric value
             \\s+
-            /x'
-			, "$1\n", $css);
+            /x', "$1\n", $css);
 
 		// prevent triggering IE6 bug: http://www.crankygeek.com/ie6pebug/
 		$css = preg_replace('/:first-l(etter|ine)\\{/', ':first-l$1 {', $css);
@@ -591,8 +611,7 @@ class Minify
                     (\\S[\\s\\S]+?)  # has at least some non-ws content
                     \\s*
                     /\\*             # ends like /*/ or /**/
-                @x', $m, $n)
-			)
+                @x', $m, $n))
 			{
 				// end hack mode after this comment, but preserve the hack and comment content
 				$this->_inHack = FALSE;
@@ -624,8 +643,7 @@ class Minify
 		// Issue 107: if there's any surrounding whitespace, it may be important, so
 		// replace the comment with a single space
 		return $hasSurroundingWs // remove all other comments
-			? ' '
-			: '';
+			? ' ' : '';
 	}
 
 	/**
