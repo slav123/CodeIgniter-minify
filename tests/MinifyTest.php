@@ -18,7 +18,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 
 	public function testInit()
 	{
-		include('application/libraries/minify.php');
+		include('application/libraries/Minify.php');
 		// Arrange
 		$minify = new Minify();
 

@@ -1,5 +1,7 @@
 # CodeIgniter - minify
 
+(https://travis-ci.org/slav123/CodeIgniter-minify.svg?branch=master)
+
 ## Overview
 
 Simple CodeIgniter library to compress **CSS and JavaScript** files on the fly.
