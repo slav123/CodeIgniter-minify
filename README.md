@@ -29,7 +29,10 @@ All directories needs to be writeable.
 	$config['js_dir'] = 'assets/js'; 
 
 	// compression engine setting
-	$config['compression_engine'] = array('css' => 'minify', 'js' => 'closurecompiler'); // cssmin
+	$config['compression_engine'] = array(
+		'css' => 'minify', // minify || cssmin
+    	'js'  => 'closurecompiler' // jsmin || closurecompiler || jsminplus
+    );
 
 
 ####Run the library
@@ -47,16 +50,20 @@ In view
 	$this->minify->js(array('html5.js', 'main.js')); 
 	
 	// bool argument for rebuild css (false means skip rebuilding). 
-	echo $this->minify->deploy_css();
+	echo $this->minify->deploy_css(TRUE);
 
     //Output: '<link href="path-to-compiled-css" rel="stylesheet" type="text/css" />'
     
-    // bool argument for rebuild js (false means skip rebuilding). 
+    // rebuild js (false means skip rebuilding).
     echo $this->minify->deploy_js(); 
  
     //Output: '<script type="text/javascript" src="path-to-compiled-js"></script>'.
+
     
 ### Changelog
+
+10 Feb 2015
+* Unit testing
 
 09 Feb 2015
 * 2 new engines to compres JS files

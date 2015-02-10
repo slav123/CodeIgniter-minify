@@ -8,13 +8,6 @@
 
 class MinifyTest extends PHPUnit_Framework_TestCase {
 
-	private $CI;
-
-	public static function setUpBeforeClass()
-	{
-		$CI = get_instance();
-
-	}
 
 	public function testInit()
 	{
@@ -26,5 +19,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_object($minify), 'is object');
 
 		$this->assertEquals($minify->js_file, 'scripts.js', 'default js file name');
+
+		$this->assertEquals($minify->css_file, 'styles.css', 'default css file name');
 	}
 }

@@ -28,13 +28,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $config['assets_dir'] = 'assets';
 $config['css_dir']    = 'assets/css';
+$config['js_dir'] = 'assets/js';
 
 $config['compression_engine'] = array(
 	'css' => 'minify', // minify || cssmin
 	'js'  => 'closurecompiler' // jsmin || closurecompiler || jsminplus
 );
 
-$config['js_dir'] = 'assets/js';
+
 
 
 
