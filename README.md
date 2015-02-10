@@ -1,6 +1,7 @@
 # CodeIgniter - minify
+=====================================
 
-(https://travis-ci.org/slav123/CodeIgniter-minify.svg?branch=master)
+[![Build Status](https://travis-ci.org/slav123/CodeIgniter-minify.svg?branch=master)](https://travis-ci.org/slav123/CodeIgniter-minify)
 
 ## Overview
 
@@ -97,5 +98,5 @@ Report theme here: <https://github.com/slav123/CodeIgniter-minify/issues>
 
 ### Sponsors
 
-![PHP Storm](http://www.jetbrains.com/img/banners/ps7.png)
+This project is build with [PHP Storm](https://www.jetbrains.com/phpstorm/)
 
