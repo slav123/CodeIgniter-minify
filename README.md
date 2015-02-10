@@ -35,6 +35,9 @@ All directories needs to be writeable.
     	'js'  => 'closurecompiler' // jsmin || closurecompiler || jsminplus
     );
 
+####Available engines
+CSS - *minify* or *cssmin* - both of them are local, just try out which one is better for you,
+JS - *closurecompiler* makes API call to external server, it's slower then regular inline engine, but it's super efficient with compression, *jsmin* and *jsminplus* are local
 
 ####Run the library
 In the controller

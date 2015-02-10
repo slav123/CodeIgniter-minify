@@ -7,6 +7,13 @@ function get_instance()
 	return new CI();
 }
 
+function base_url($string) {
+	return $string;
+}
+
+function link_tag($string) {
+	return $string;
+}
 
 class CI
 {
@@ -53,7 +60,10 @@ class CI_Config
 		switch ($params[0]) {
 			case 'assets_dir':
 				return sys_get_temp_dir();
-			break;
+				break;
+			case 'compression_engine':
+				return array('js' => 'jsmin', 'css' => 'minify');
+				break;
 		}
 	}
 }
