@@ -18,6 +18,8 @@ class cssminify {
 
 	public function compress($css)
 	{
+		$this->_inHack = FALSE;
+
 		$css = str_replace("\r\n", "\n", $css);
 
 		// preserve empty comment after '>'
