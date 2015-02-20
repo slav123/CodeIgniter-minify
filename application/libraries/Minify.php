@@ -74,6 +74,21 @@ class Minify
 	var $compress = TRUE;
 
 	/**
+	 * @var string
+	 */
+	var $_closure_optimization = 'SIMPLE_OPTIMIZATIONS';
+
+	/**
+	 * @var bool
+	 */
+	var $_closure_show_errors = FALSE;
+
+	/**
+	 * @var bool
+	 */
+	var $_closure_show_warnings = FALSE;
+
+	/**
 	 * @var
 	 */
 	var $_inHack;
@@ -419,6 +434,54 @@ class Minify
 		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
 	}
 
+
+	/**
+	 * reset closure compiler options to their default value
+	 */
+	public function closure_reset_options()
+	{
+		$this->_closure_optimization = 'SIMPLE_OPTIMIZATIONS';
+		$this->_closure_warnings = FALSE;
+		$this->_closure_errors = FALSE;
+		return $this;
+	}
+
+	/**
+	 * set optimization level for the closure compiler
+	 *
+	 * @param string $opt optimization level (can be "WHITESPACE_ONLY", "SIMPLE_OPTIMIZATIONS" or "ADVANCED_OPTIMIZATIONS")
+	 *
+	 */
+	public function closure_set_optimization($opt = '')
+	{
+		$this->_closure_optimization = $opt;
+		return $this;
+	}
+
+	/**
+	 * enable/disable closure compiler warnings (they will be printed among the js code so be sure to disable it in production)
+	 *
+	 * @param bool $warnings TRUE to enable warnings, FALSE to disable them
+	 *
+	 */
+	public function closure_warnings($warnings)
+	{
+		$this->_closure_show_warnings = $warnings;
+		return $this;
+	}
+
+	/**
+	 * enable/disable closure compiler errors (they will be printed among the js code so be sure to disable it in production)
+	 *
+	 * @param bool $errors TRUE to enable errors, FALSE to disable them
+	 *
+	 */
+	public function closure_errors($errors)
+	{
+		$this->_closure_show_errors = $errors;
+		return $this;
+	}
+
 	/**
 	 * compress javascript using closure compiler service
 	 *
@@ -432,7 +495,7 @@ class Minify
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=SIMPLE_OPTIMIZATIONS&js_code=' . urlencode($script));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, ($this->_closure_show_errors ? 'output_info=errors&' : '' ) . ($this->_closure_show_warnings ? 'output_info=warnings&' : '' ) . 'output_info=compiled_code&output_format=text&compilation_level=' . $this->_closure_optimization . '&js_code=' . urlencode($script));
 		$output = curl_exec($ch);
 		curl_close($ch);
 
