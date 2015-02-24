@@ -298,7 +298,7 @@ class Minify
 				$contents  = fread($handle, filesize($file_name));
 				fclose($handle);
 
-				fwrite($fh, $contents);
+				fwrite($fh, $contents . "\n");
 			}
 			fclose($fh);
 		}
