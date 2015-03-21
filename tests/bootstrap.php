@@ -1,6 +1,7 @@
 <?php
 
 define('BASEPATH', 'application');
+define('APPPATH', 'application/');
 
 function get_instance()
 {
@@ -13,6 +14,10 @@ function base_url($string) {
 
 function link_tag($string) {
 	return $string;
+}
+
+function log_message($string1, $string2) {
+	return;
 }
 
 class CI
