@@ -147,35 +147,19 @@ class Minify
 		if (count($config) > 0)
 		{
 			// custom config array
-			$this->initialize($config);
+			foreach ($config as $key => $val)
+			{
+				if (isset($this->$key))
+				{
+					$this->$key = $val;
+				}
+			}
 		}
 
 		// perform checks
 		$this->_config_checks();
 		
 		log_message('debug', "Minify Class Initialized");
-	}
-
-	//--------------------------------------------------------------------
-
-	/**
-	 * Initialize with custom variables
-	 *
-	 * @param array $config Config array
-	 *
-	 * @return void
-	 */
-	public function initialize($config = array())
-	{
-		foreach ($config as $key => $val)
-		{
-			if (isset($this->$key))
-			{
-				$this->$key = $val;
-			}
-		}
-
-		return $this;
 	}
 
 	//--------------------------------------------------------------------
