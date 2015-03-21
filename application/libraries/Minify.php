@@ -73,11 +73,6 @@ class Minify
 	 */
 	var $compress = TRUE;
 
-	/**
-	 * @var
-	 */
-	var $_inHack;
-
 	var $assets_dir = '';
 
 	private $_lmod = array('css' => 0, 'js' => 0);
@@ -323,58 +318,6 @@ class Minify
 			fclose($handle);
 		}
 
-	}
-
-	/**
-	 * grab js files into one file
-	 */
-	public function join_js()
-	{
-		$js = $this->js_array;
-		if (file_exists($this->js_file))
-		{
-			$x = filemtime($this->js_file);
-		}
-		else
-		{
-			$x = 0;
-		}
-
-		$flag = FALSE; // flag to check if any of the file was changed to rebuild all the set of files
-		if (is_array($js))
-		{
-			foreach ($js as $j)
-			{
-				$filename = $this->js_dir . '/' . $j;
-				if (file_exists($filename) && filemtime($filename) > $x)
-				{
-					$flag = TRUE;
-					break;
-				}
-			}
-			if ( ! $flag)
-			{
-				return;
-			} // nothing was changed
-			@unlink($this->js_file);
-			foreach ($js as $j)
-			{
-				$filename = $this->js_dir . '/' . $j;
-				if (file_exists($filename))
-				{
-					$this->_merge_js($filename);
-				}
-			}
-		}
-		else
-		{
-			$filename = $this->css_dir . "/" . $js;
-			if (file_exists($filename) && filemtime($filename) > $x)
-			{
-				@unlink($this->js_file);
-				$this->_merge_js($filename);
-			}
-		}
 	}
 
 	/**
