@@ -340,19 +340,21 @@ class Minify
 	/**
 	 * construct js_file and css_file
 	 *
-	 * @param string $name
-	 * @param string $value
+	 * @param string $name  File type
+	 * @param string $value File name
+	 *
+	 * @return void
 	 */
 	private function _set($name, $value)
 	{
-
 		switch ($name)
 		{
 			case 'js_file':
 
 				if ($this->compress)
 				{
-					if (!preg_match("/\.min\.js$/", $value)) {
+					if ( ! preg_match("/\.min\.js$/", $value)) 
+					{
 						$value = str_replace('.js', '.min.js', $value);
 					}
 
@@ -363,7 +365,7 @@ class Minify
 
 				if ( ! file_exists($this->_js_file) && ! touch($this->_js_file))
 				{
-					die("Can not create file {$this->_js_file}");
+					throw new Exception('Can not create file ' . $this->_js_file);
 				}
 				else
 				{
@@ -375,29 +377,27 @@ class Minify
 
 				if ($this->compress)
 				{
-					$value = str_replace('.css', '.min.css', $value);
+					if ( ! preg_match("/\.min\.css$/", $value)) 
+					{
+						$value = str_replace('.css', '.min.css', $value);
+					}
+
 					$this->css_file = $value;
 				}
 
 				$this->_css_file = $this->assets_dir . '/' . $value;
 
-				if ( ! file_exists($this->_css_file) && !touch($this->_css_file))
+				if ( ! file_exists($this->_css_file) && ! touch($this->_css_file))
 				{
-					die("Can not create file {$this->_css_file}");
+					throw new Exception('Can not create file ' . $this->_css_file);
 				}
 				else
 				{
-					try
-					{
-						$this->_lmod['css'] = filemtime($this->_css_file);
-					} catch (Exception $e) {
-						echo $e->getMessage();
-					}
+					$this->_lmod['css'] = filemtime($this->_css_file);
 				}
+
 				break;
 		}
-
-
 	}
 
 	//--------------------------------------------------------------------
