@@ -644,71 +644,90 @@ class Minify
 		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
 	}
 
+	//--------------------------------------------------------------------
+
 	/**
-	 * compress javascript using closure compiler service
+	 * Compress javascript using closure compiler service
 	 *
-	 * @param string $script source to compress
+	 * @param string $data Source to compress
 	 *
 	 * @return mixed
 	 */
-	private function _closurecompiler($script)
+	private function _closurecompiler($data)
 	{
 		$ch = curl_init('http://closure-compiler.appspot.com/compile');
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=SIMPLE_OPTIMIZATIONS&js_code=' . urlencode($script));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=SIMPLE_OPTIMIZATIONS&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
 		curl_close($ch);
 
 		return $output;
 	}
 
+	//--------------------------------------------------------------------
+
 	/**
-	 * implements jsmin as alternavive to closure compiler
+	 * Implements jsmin as alternavive to closure compiler
 	 *
-	 * @param $data
+	 * @param string $data Source to compress
 	 *
 	 * @return string
 	 */
 	private function _jsmin($data)
 	{
-		require_once('JSMin.php');
+		require_once(APPPATH . 'libraries/minify/JSMin.php');
 
 		return JSMin::minify($data);
 	}
 
+	//--------------------------------------------------------------------
+
 	/**
-	 * implements jsminplus as alternavive to closure compiler
+	 * Implements jsminplus as alternavive to closure compiler
 	 *
-	 * @param $data
+	 * @param string $data Source to compress
 	 *
 	 * @return string
 	 */
 	private function _jsminplus($data)
 	{
-		require_once('JSMinPlus.php');
+		require_once(APPPATH . 'libraries/minify/JSMinPlus.php');
 
 		return JSMinPlus::minify($data);
 	}
 
+	//--------------------------------------------------------------------
+
 	/**
-	 * cssmin compression engine
+	 * Implements cssmin compression engine
 	 *
-	 * @param $data
+	 * @param string $data Source to compress
 	 *
 	 * @return string
 	 */
 	private function _cssmin($data)
 	{
-		require_once('cssmin-v3.0.1.php');
+		require_once(APPPATH . 'libraries/minify/cssmin-v3.0.1.php');
 
 		return CssMin::minify($data);
 	}
 
-	private function _minify($data) {
-		require_once('cssminify.php');
+	//--------------------------------------------------------------------
+
+	/**
+	 * Implements cssminify compression engine
+	 *
+	 * @param string $data Source to compress
+	 *
+	 * @return string
+	 */
+	private function _minify($data) 
+	{
+		require_once(APPPATH . 'libraries/minify/cssminify.php');
 		$cssminify = new cssminify();
+		
 		return $cssminify->compress($data);
 	}
 }
