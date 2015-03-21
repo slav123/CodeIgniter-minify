@@ -26,101 +26,200 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Minify
 {
-
 	/**
 	 * CodeIgniter global.
 	 *
-	 * @var string
-	 **/
+	 * @var object
+	 */
 	protected $ci;
 
 	/**
-	 * @var string
-	 */
-	var $css = '';
-
-	/**
-	 * @var string
-	 */
-	var $js = '';
-
-	/**
+	 * Css files array.
+	 *
 	 * @var array
 	 */
-	var $css_array = array();
+	protected $css_array = array();
 
 	/**
+	 * Js files array.
+	 *
 	 * @var array
 	 */
-	var $js_array = array();
+	protected $js_array = array();
 
 	/**
-	 * Public space for JS file name
+	 * Assets dir.
 	 *
 	 * @var string
 	 */
-	public $js_file = 'scripts.js', $css_file = 'styles.css', $css_dir, $js_dir;
+	public $assets_dir = 'assets';
 
 	/**
-	 * Private js file name with path
+	 * Css dir.
 	 *
-	 * @var
+	 * @var string
 	 */
-	private $_js_file, $_css_file;
+	public $css_dir = 'assets/css';
 
 	/**
-	 * @var int
+	 * Js dir.
+	 *
+	 * @var string
 	 */
-	var $compress = TRUE;
+	public $js_dir = 'assets/js';
 
-	var $assets_dir = '';
+	/**
+	 * Output css file name.
+	 *
+	 * @var string
+	 */
+	public $css_file = 'styles.css';
 
+	/**
+	 * Output js file name.
+	 *
+	 * @var string
+	 */
+	public $js_file = 'scripts.js';
+
+	/**
+	 * Compress files or not.
+	 *
+	 * @var bool
+	 */
+	public $compress = TRUE;
+
+	/**
+	 * Compression engines.
+	 *
+	 * @var array
+	 */
+	public $compression_engine = array('css' => 'minify', 'js' => 'closurecompiler');
+
+	/**
+	 * Css file name with path.
+	 *
+	 * @var string
+	 */
+	private $_css_file = '';
+
+	/**
+	 * Js file name with path.
+	 *
+	 * @var string
+	 */
+	private $_js_file = '';
+
+	/**
+	 * Last modufication.
+	 *
+	 * @var array
+	 */
 	private $_lmod = array('css' => 0, 'js' => 0);
 
 	/**
+	 * Constructor
 	 *
+	 * @param array $config Config array
 	 */
-	function __construct()
+	public function __construct($config = array())
 	{
 		$this->ci = get_instance();
-		$this->ci->load->config('minify', TRUE);
+		$this->ci->load->config('minify', TRUE, TRUE);
 
-		$this->_setup();
+		// user specified settings from config file
+		$this->assets_dir         = $this->ci->config->item('assets_dir', 'minify') ?: $this->assets_dir;
+		$this->css_dir            = $this->ci->config->item('css_dir', 'minify') ?: $this->css_dir;
+		$this->js_dir             = $this->ci->config->item('js_dir', 'minify') ?: $this->js_dir;
+		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
+		$this->js_file            = $this->ci->config->item('js_file', 'minify') ?: $this->js_file;
+		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
+		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
+		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
+
+		if (count($config) > 0)
+		{
+			// custom config array
+			$this->initialize($config);
+		}
+
+		// perform checks
+		$this->_config_checks();
+		
+		log_message('debug', "Minify Class Initialized");
 	}
 
-	/**
-	 * some basic setup
-	 *
-	 */
-	private function _setup()
-	{
+	//--------------------------------------------------------------------
 
-		// assign variables from confif file
+	/**
+	 * Perform config checks
+	 *
+	 * @return void
+	 */
+	private function _config_checks()
+	{
+		if ( ! is_writable($this->assets_dir))
+		{
+			throw new Exception('Assets directory ' . $this->assets_dir . ' is not writable');
+		}
+
 		if (empty($this->css_dir))
 		{
-			$this->css_dir = $this->ci->config->item('css_dir', 'minify');
+			throw new Exception('CSS directory must be set');
 		}
 
-		// check JS dir
 		if (empty($this->js_dir))
 		{
-			$this->js_dir = $this->ci->config->item('js_dir', 'minify');
+			throw new Exception('JS directory must be set');
 		}
 
-		// check general assets dir
-		if (empty($this->assets_dir))
+		if (empty($this->css_file))
 		{
-			$this->assets_dir = $this->ci->config->item('assets_dir', 'minify');
-			if ( ! is_writable($this->assets_dir))
+			throw new Exception('CSS file name can\'t be empty');
+		}
+
+		if (empty($this->js_file))
+		{
+			throw new Exception('JS file name can\'t be empty');
+		}
+
+		if ($this->compress)
+		{
+			if ( ! isset($this->compression_engine['css']) OR empty($this->compression_engine['css']))
 			{
-				die("Assets directory {$this->assets_dir} is not writeable");
+				throw new Exception('Compression engine for CSS is required');
+			}
+
+			if ( ! isset($this->compression_engine['js']) OR empty($this->compression_engine['js']))
+			{
+				throw new Exception('Compression engine for JS is required');
+			}
+		}
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Initialize with custom variables
+	 *
+	 * @param array $config Config array
+	 *
+	 * @return void
+	 */
+	public function initialize($config = array())
+	{
+		foreach ($config as $key => $val)
+		{
+			if (isset($this->$key))
+			{
+				$this->$key = $val;
 			}
 		}
 
-		$this->_set('js_file', $this->js_file);
-		$this->_set('css_file', $this->css_file);
-
+		return $this;
 	}
+
+	//--------------------------------------------------------------------
 
 	/**
 	 * construct js_file and css_file
