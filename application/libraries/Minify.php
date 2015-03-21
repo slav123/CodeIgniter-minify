@@ -83,6 +83,13 @@ class Minify
 	public $js_file = 'scripts.js';
 
 	/**
+	 * Automatic file names.
+	 *
+	 * @var bool
+	 */
+	public $auto_names = FALSE;
+
+	/**
 	 * Compress files or not.
 	 *
 	 * @var bool
@@ -173,14 +180,17 @@ class Minify
 			throw new Exception('JS directory must be set');
 		}
 
-		if (empty($this->css_file))
+		if ( ! $this->auto_names)
 		{
-			throw new Exception('CSS file name can\'t be empty');
-		}
+			if (empty($this->css_file))
+			{
+				throw new Exception('CSS file name can\'t be empty');
+			}
 
-		if (empty($this->js_file))
-		{
-			throw new Exception('JS file name can\'t be empty');
+			if (empty($this->js_file))
+			{
+				throw new Exception('JS file name can\'t be empty');
+			}
 		}
 
 		if ($this->compress)
@@ -224,19 +234,20 @@ class Minify
 	/**
 	 * Declare css files list
 	 *
-	 * @param mixed $css File or files names
+	 * @param mixed $css   File or files names
+	 * @param bool  $group Set group for files
 	 *
 	 * @return void
 	 */
-	public function css($css)
+	public function css($css, $group = 'default')
 	{
 		if (is_array($css))
 		{
-			$this->css_array = $css;
+			$this->css_array[$group] = $css;
 		}
 		else 
 		{
-			$this->css_array = array_map('trim', explode(',', $css));
+			$this->css_array[$group] = array_map('trim', explode(',', $css));
 		}
 
 		return $this;
@@ -247,19 +258,20 @@ class Minify
 	/**
 	 * Declare js files list
 	 *
-	 * @param mixed $js File or files names
+	 * @param mixed $js    File or files names
+	 * @param bool  $group Set group for files
 	 *
 	 * @return void
 	 */
-	public function js($js)
+	public function js($js, $group = 'default')
 	{
 		if (is_array($js))
 		{
-			$this->js_array = $js;
+			$this->js_array[$group] = $js;
 		}
 		else 
 		{
-			$this->js_array = array_map('trim', explode(',', $js));
+			$this->js_array[$group] = array_map('trim', explode(',', $js));
 		}
 
 		return $this;
@@ -328,23 +340,26 @@ class Minify
 
 	}
 
+	//--------------------------------------------------------------------
+
 	/**
 	 * scan CSS direcctory and look for changes
 	 *
-	 * @param string $type  css | js
-	 * @param bool   $force rewrite no mather what
+	 * @param string $type  Type (css | js)
+	 * @param bool   $force Rewrite no mather what
+	 * @param string $group Group name
 	 */
-	public function scan_files($type, $force)
+	private function _scan_files($type, $force, $group)
 	{
 		switch ($type)
 		{
 			case 'css':
-				$files_array = $this->css_array;
+				$files_array = $this->css_array[$group];
 				$directory   = $this->css_dir;
 				$out_file    = $this->_css_file;
 				break;
 			case 'js':
-				$files_array = $this->js_array;
+				$files_array = $this->js_array[$group];
 				$directory   = $this->js_dir;
 				$out_file    = $this->_js_file;
 		}
@@ -366,7 +381,7 @@ class Minify
 				}
 				else
 				{
-					die("File {$filename} is missing");
+					throw new Exception('File ' . $filename . ' is missing');
 				}
 			}
 
@@ -376,22 +391,23 @@ class Minify
 				$force = TRUE;
 			}
 
-			if ($compile || $force)
+			if ($compile OR $force)
 			{
 				$this->_concat_files($files_array, $directory, $out_file);
 			}
 		}
-
 	}
+
+	//--------------------------------------------------------------------
 
 	/**
 	 * add merge files
 	 *
-	 * @param string $file_array input file array
-	 * @param        $directory
-	 * @param string $out_file   output file
+	 * @param string $file_array Input file array
+	 * @param string $directory  Directory
+	 * @param string $out_file   Output file
 	 *
-	 * @internal param string $filename file name
+	 * @return void
 	 */
 	private function _concat_files($file_array, $directory, $out_file)
 	{
@@ -411,9 +427,8 @@ class Minify
 		}
 		else
 		{
-			die("Can't write to {$out_file}");
+			throw new Exception('Can\'t write to ' . $out_file);
 		}
-
 
 		if ($this->compress)
 		{
@@ -425,66 +440,146 @@ class Minify
 			// recreate file
 			$handle = fopen($out_file, 'w');
 
-			//get engine file from config file
-			$engine = $this->ci->config->item('compression_engine', 'minify');
 			if (preg_match("/.css$/i", $out_file))
 			{
-				$engine = "_{$engine['css']}";
+				$engine = '_' . $this->compression_engine['css'];
 			}
 
 			if (preg_match("/.js$/i", $out_file))
 			{
-				$engine = $this->ci->config->item('compression_engine', 'minify');
-				$engine = "_{$engine['js']}";
+				$engine = '_' . $this->compression_engine['js'];
 			}
 
-			// get function name to compress file
-
-			//fwrite($handle, $this->_process($contents));
+			// call function name to compress file
 			fwrite($handle, call_user_func(array($this, $engine), $contents));
 			fclose($handle);
 		}
-
 	}
 
-	/**
-	 * deploy and minify CSS
-	 *
-	 * @param bool $force     force to rewrite file
-	 * @param null $file_name file name to create
-	 *
-	 * @return mixed
-	 */
-	public function deploy_css($force = TRUE, $file_name = NULL)
-	{
-
-		if ( ! is_null($file_name))
-		{
-			$this->_set('css_file', $file_name);
-		}
-
-		$this->scan_files('css', $force);
-
-		$this->ci->load->helper('html');
-
-		return link_tag($this->_css_file);
-	}
+	//--------------------------------------------------------------------
 
 	/**
-	 * deploy js
+	 * Deploy and minify CSS
 	 *
-	 * @param bool $force     force rewriting js file
-	 * @param null $file_name file name
+	 * @param bool $force     Force to rewrite file
+	 * @param null $file_name File name to create
+	 * @param null $group     Group name
 	 *
 	 * @return string
 	 */
-	public function deploy_js($force = FALSE, $file_name = NULL)
+	public function deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
-		if ( ! is_null($file_name))
+		$return = '';
+
+		if (is_null($file_name))
 		{
-			$this->_set('js_file', $file_name);
+			$file_name = $this->css_file;
 		}
-		$this->scan_files('js', $force);
+
+		if (is_null($group))
+		{
+			foreach ($this->css_array as $group_name => $group_array)
+			{
+				$return .= $this->_deploy_css($force, $file_name, $group_name) . PHP_EOL;
+			}
+		}
+		else
+		{
+			$return .= $this->_deploy_css($force, $file_name, $group);
+		}
+
+		return $return;
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Deploy and minify js
+	 *
+	 * @param bool $force     Force rewriting js file
+	 * @param null $file_name File name
+	 * @param null $group     Group name
+	 *
+	 * @return string
+	 */
+	public function deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
+	{
+		$return = '';
+
+		if (is_null($file_name))
+		{
+			$file_name = $this->js_file;
+		}
+
+		if (is_null($group))
+		{
+			foreach ($this->js_array as $group_name => $group_array)
+			{
+				$return .= $this->_deploy_js($force, $file_name, $group_name) . PHP_EOL;
+			}
+		}
+		else
+		{
+			$return .= $this->_deploy_js($force, $file_name, $group);
+		}
+
+		return $return;
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Build and minify CSS
+	 *
+	 * @param bool $force     Force to rewrite file
+	 * @param null $file_name File name to create
+	 * @param null $group     Group name
+	 *
+	 * @return string
+	 */
+	private function _deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
+	{
+		if ($this->auto_names)
+		{
+			$file_name = md5(serialize($this->css_array[$group])) . '.css';
+		}
+		else
+		{
+			$file_name = ($group === 'default') ? $file_name : $group . '_' . $file_name;
+		}
+
+		$this->_set('css_file', $file_name);
+
+		$this->_scan_files('css', $force, $group);
+
+		return '<link href="' . base_url($this->_css_file) . '" rel="stylesheet" type="text/css" />';
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Build and minify js
+	 *
+	 * @param bool $force     Force rewriting js file
+	 * @param null $file_name File name
+	 * @param null $group     Group name
+	 *
+	 * @return string
+	 */
+	private function _deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
+	{
+		if ($this->auto_names)
+		{
+			$file_name = md5(serialize($this->js_array[$group])) . '.js';
+		}
+		else
+		{
+			$file_name = ($group === 'default') ? $file_name : $group . '_' . $file_name;
+		}
+
+		$this->_set('js_file', $file_name);
+
+		$this->_scan_files('js', $force, $group);
 
 		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
 	}
