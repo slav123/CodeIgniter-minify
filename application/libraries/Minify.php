@@ -222,6 +222,50 @@ class Minify
 	//--------------------------------------------------------------------
 
 	/**
+	 * Declare css files list
+	 *
+	 * @param mixed $css File or files names
+	 *
+	 * @return void
+	 */
+	public function css($css)
+	{
+		if (is_array($css))
+		{
+			$this->css_array = $css;
+		}
+		else 
+		{
+			$this->css_array = array_map('trim', explode(',', $css));
+		}
+
+		return $this;
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Declare js files list
+	 *
+	 * @param mixed $js File or files names
+	 *
+	 * @return void
+	 */
+	public function js($js)
+	{
+		if (is_array($js))
+		{
+			$this->js_array = $js;
+		}
+		else 
+		{
+			$this->js_array = array_map('trim', explode(',', $js));
+		}
+
+		return $this;
+	}
+
+	/**
 	 * construct js_file and css_file
 	 *
 	 * @param string $name
@@ -282,22 +326,6 @@ class Minify
 		}
 
 
-	}
-
-	/**
-	 * @param $css
-	 */
-	public function css($css)
-	{
-		$this->css_array = $css;
-	}
-
-	/**
-	 * @param $js
-	 */
-	public function js($js)
-	{
-		$this->js_array = $js;
 	}
 
 	/**
