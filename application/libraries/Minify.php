@@ -277,6 +277,66 @@ class Minify
 		return $this;
 	}
 
+	//--------------------------------------------------------------------
+
+	/**
+	 * Declare css files list
+	 *
+	 * @param mixed $css   File or files names
+	 * @param bool  $group Set group for files
+	 *
+	 * @return void
+	 */
+	public function add_css($css, $group = 'default')
+	{
+		if ( ! isset($this->css_array[$group]))
+		{
+			$this->css_array[$group] = array();
+		}
+
+		if (is_array($css))
+		{
+			$this->css_array[$group] = array_unique(array_merge($this->css_array[$group], $css));
+		}
+		else 
+		{
+			$this->css_array[$group] = array_unique(array_merge($this->css_array[$group], array_map('trim', explode(',', $css))));
+		}
+
+		return $this;
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Declare js files list
+	 *
+	 * @param mixed $js    File or files names
+	 * @param bool  $group Set group for files
+	 *
+	 * @return void
+	 */
+	public function add_js($js, $group = 'default')
+	{
+		if ( ! isset($this->js_array[$group]))
+		{
+			$this->js_array[$group] = array();
+		}
+
+		if (is_array($js))
+		{
+			$this->js_array[$group] = array_unique(array_merge($this->js_array[$group], $js));
+		}
+		else 
+		{
+			$this->js_array[$group] = array_unique(array_merge($this->js_array[$group], array_map('trim', explode(',', $js))));
+		}
+
+		return $this;
+	}
+
+	//--------------------------------------------------------------------
+
 	/**
 	 * construct js_file and css_file
 	 *
