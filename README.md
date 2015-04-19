@@ -18,7 +18,7 @@ Just put Minify.php file in libraries path, and create config file on config dir
 ###USING THE LIBRARY:
 
 ####Configure the library:
-All directories needs to be writeable.
+All directories needs to be writable.
 
 	// output path where the compiled files will be stored
     $config['assets_dir'] = 'assets/'; 	

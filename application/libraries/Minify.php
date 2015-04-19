@@ -5,10 +5,10 @@
  * PHP Version 5.3
  *
  * @category  PHP
- * @package   Libraryr
+ * @package   Library
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2014 All Rights Reserved SpiderSoft
- * @license   Copyright 2014 All Rights Reserved SpiderSoft
+ * @copyright 2015 All Rights Reserved SpiderSoft
+ * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      Location: http://github.com/slav123/CodeIgniter-Minify
  */
 
@@ -20,8 +20,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2014 All Rights Reserved SpiderSoft
- * @license   Copyright 2014 All Rights Reserved SpiderSoft
+ * @copyright 2015 All Rights Reserved SpiderSoft
+ * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      http://www.spidersoft.com.au
  */
 class Minify
@@ -118,7 +118,7 @@ class Minify
 	private $_js_file = '';
 
 	/**
-	 * Last modufication.
+	 * Last modification.
 	 *
 	 * @var array
 	 */
@@ -185,8 +185,6 @@ class Minify
 
 		return $this;
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Declare js files list
@@ -461,10 +459,9 @@ class Minify
 		}
 	}
 
-	//--------------------------------------------------------------------
 
 	/**
-	 * scan CSS direcctory and look for changes
+	 * scan CSS directory and look for changes
 	 *
 	 * @param string $type  Type (css | js)
 	 * @param bool   $force Rewrite no mather what
@@ -553,7 +550,7 @@ class Minify
 
 		if ($this->compress)
 		{
-			// read output file contenst (already concated)
+			// read output file contest (already concated)
 			$handle   = fopen($out_file, 'r');
 			$contents = fread($handle, filesize($out_file));
 			fclose($handle);
@@ -602,7 +599,7 @@ class Minify
 	//--------------------------------------------------------------------
 
 	/**
-	 * Implements jsmin as alternavive to closure compiler
+	 * Implements jsmin as alternative to closure compiler
 	 *
 	 * @param string $data Source to compress
 	 *
@@ -618,7 +615,7 @@ class Minify
 	//--------------------------------------------------------------------
 
 	/**
-	 * Implements jsminplus as alternavive to closure compiler
+	 * Implements jsminplus as alternative to closure compiler
 	 *
 	 * @param string $data Source to compress
 	 *
