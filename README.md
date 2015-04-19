@@ -18,7 +18,7 @@ Just put Minify.php file in libraries path, and create config file on config dir
 ###USING THE LIBRARY:
 
 ####Configure the library:
-All directories needs to be writeable.
+All directories needs to be writable.
 
 	// output path where the compiled files will be stored
     $config['assets_dir'] = 'assets/'; 	
@@ -65,6 +65,16 @@ In view
 
     
 ### Changelog
+
+22 Mar 2015
+* method chaining support
+* new methods: `add_css()` and `add_js()` - gives ability for adding files to existing files arrays
+* added support to run library with custom array config, assigned as second parameter (during loading) $this->load->library('minify', $config);
+* added support for *groups* in files arrays - as second (optional) parameter in methods: `css()`, `js()`, `add_css()` and `add_js()` (i.e. $this->minify->js(array('script.js'), 'extra'); - default group name is *default*)
+* added support for strings as first parameter in methods: `css()`, `js()`, `add_css()` and `add_js()` (i.e. $this->minify->js('first.js, second.js');)
+* added support for automatic files names: $config['auto_names'] = TRUE;
+* external compression classes moved to *minify* folder
+* unit tests for new features
 
 10 Feb 2015
 * Unit testing
