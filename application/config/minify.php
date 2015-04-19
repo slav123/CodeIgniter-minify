@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
 /**
- * Minify config gile
+ * Minify config file
  *
  * @category  PHP
  * @package   Controller
@@ -36,6 +36,8 @@ $config['compression_engine'] = array(
 );
 
 
+// optimization level (can be "WHITESPACE_ONLY", "SIMPLE_OPTIMIZATIONS" or "ADVANCED_OPTIMIZATIONS")
+$config['closurecompiler']['compilation_level'] = 'SIMPLE_OPTIMIZATIONS';
 
 
 

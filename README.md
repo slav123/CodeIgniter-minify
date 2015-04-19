@@ -66,6 +66,9 @@ In view
     
 ### Changelog
 
+20 Apr 2015
+* Closure compilerconfiguration extracted to config file
+
 22 Mar 2015
 * method chaining support
 * new methods: `add_css()` and `add_js()` - gives ability for adding files to existing files arrays

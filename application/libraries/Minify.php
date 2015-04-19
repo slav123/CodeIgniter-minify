@@ -143,6 +143,7 @@ class Minify
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
+		$this->closurecompiler = $this->ci->config->item('closurecompiler', 'minify');
 
 		if (count($config) > 0)
 		{
@@ -585,11 +586,15 @@ class Minify
 	 */
 	private function _closurecompiler($data)
 	{
+
+		$config = $this->closurecompiler;
+
+
 		$ch = curl_init('http://closure-compiler.appspot.com/compile');
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=SIMPLE_OPTIMIZATIONS&js_code=' . urlencode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=' . $config['compilation_level'].'&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
 		curl_close($ch);
 
