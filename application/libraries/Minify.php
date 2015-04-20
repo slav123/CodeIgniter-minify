@@ -350,7 +350,7 @@ class Minify
 	 */
 	private function _deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
-		if ($this->auto_names)
+		if ($this->auto_names OR $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->css_array[$group])) . '.css';
 		}
@@ -379,7 +379,7 @@ class Minify
 	 */
 	private function _deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
-		if ($this->auto_names)
+		if ($this->auto_names OR $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->js_array[$group])) . '.js';
 		}
