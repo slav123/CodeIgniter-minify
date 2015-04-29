@@ -1,9 +1,4 @@
 # CodeIgniter - minify [![Build Status](https://travis-ci.org/slav123/CodeIgniter-minify.svg?branch=master)](https://travis-ci.org/slav123/CodeIgniter-minify)
-======================
-
-
-
-## Overview
 
 Simple CodeIgniter library to compress **CSS and JavaScript** files on the fly.
 
@@ -22,7 +17,7 @@ All directories needs to be writable. Next you can set your own values for confi
 
 ```php
 // output path where the compiled files will be stored (default value: 'assets')
-$config['assets_dir'] = 'assets'; 	
+$config['assets_dir'] = 'assets';     
 
 // where to look for css files (default value: 'assets/css')
 $config['css_dir'] = 'assets/css';
@@ -119,7 +114,7 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 //Output: '<script type="text/javascript" src="path-to-compiled-js-group-with-auto-file-name"></script>'.
 ```
     
-### Changelog
+## Changelog
 
 29 Apr 2015
 * allow to use automatic file name for particular deploy when you have `$config['auto_names']` set to `FALSE`
@@ -167,11 +162,10 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 * detects file modification time no longer force rewrites,
 * example usage now included withing app
 
-### Any questions ?
+## Any questions?
 
 Report theme here: <https://github.com/slav123/CodeIgniter-minify/issues>
 
-### Sponsors
+## Sponsors
 
 This project is build with [PHP Storm](https://www.jetbrains.com/phpstorm/)
-
