@@ -104,6 +104,13 @@ class Minify
 	public $compression_engine = array('css' => 'minify', 'js' => 'closurecompiler');
 
 	/**
+	 * Closurecompiler settings.
+	 *
+	 * @var array
+	 */
+	public $closurecompiler = array('compilation_level' => 'SIMPLE_OPTIMIZATIONS');
+
+	/**
 	 * Css file name with path.
 	 *
 	 * @var string
@@ -143,7 +150,7 @@ class Minify
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
-		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify');
+		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
 
 		if (count($config) > 0)
 		{
