@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @category  PHP
  * @package   Controller
  * @author    Slawomir Jasinski <slav123@gmail.com>
- * @copyright 2015 All Rights Reserved SpiderSoft
+ * @copyright 2016 All Rights Reserved SpiderSoft
  * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      http://www.spidersoft.com.au
  */
@@ -540,6 +540,12 @@ class Minify
 				$contents  = fread($handle, filesize($file_name));
 				fclose($handle);
 
+				// if this is javascript file, check if we have ; at the end
+				if (preg_match("/.js$/i", $out_file)) {
+					if (substr(rtrim($contents), -1) !== ';') {
+						$contents .= ';';
+					}
+				}
 				fwrite($fh, $contents);
 			}
 			fclose($fh);
