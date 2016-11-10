@@ -44,6 +44,7 @@ In the controller
 
     //load the library
 	$this->load->library('minify'); 
+	$this->load->helper('url');
 
 In view	
 
