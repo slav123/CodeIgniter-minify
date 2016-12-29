@@ -129,4 +129,40 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals($this->minify->css_file, '72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css', 'output css auto file name');
 	}
+
+	public function testCssCompressWithGroupNames()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->css_dir = 'assets/css';
+		$this->minify->add_css(array('style.css'), 'sample1')->add_css('browser-specific.css', 'sample2');
+
+		$result = $this->minify->deploy_css(TRUE, NULL, 'sample1');
+		$this->assertTrue(is_string($result), 'deploy with group name: sample1');
+
+		$this->assertEquals($this->minify->css_file, 'sample1_styles.min.css', 'output css default file name for group: sample1');
+
+		$result = $this->minify->deploy_css(TRUE, NULL, 'sample2');
+		$this->assertTrue(is_string($result), 'deploy with group name: sample2');
+
+		$this->assertEquals($this->minify->css_file, 'sample2_styles.min.css', 'output css default file name for group: sample2');
+	}
+
+	public function testJsCompressWithGroupNames()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->css_dir = 'assets/js';
+		$this->minify->add_js(array('helpers.js'), 'sample1')->add_js('jqModal.js', 'sample2');
+
+		$result = $this->minify->deploy_js(TRUE, NULL, 'sample1');
+		$this->assertTrue(is_string($result), 'deploy with group name: sample1');
+
+		$this->assertEquals($this->minify->js_file, 'sample1_scripts.min.js', 'output js default file name for group: sample1');
+
+		$result = $this->minify->deploy_js(TRUE, NULL, 'sample2');
+		$this->assertTrue(is_string($result), 'deploy with group name: sample2');
+
+		$this->assertEquals($this->minify->js_file, 'sample2_scripts.min.js', 'output js default file name for group: sample2');
+	}
 }
