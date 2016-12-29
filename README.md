@@ -17,7 +17,13 @@ All directories needs to be writable. Next you can set your own values for confi
 
 ```php
 // output path where the compiled files will be stored (default value: 'assets')
-$config['assets_dir'] = 'assets';     
+$config['assets_dir'] = 'assets';
+
+// optional - path where the compiled css files will be stored (default value: '' - for backward compatibility)
+$config['assets_dir_css'] = ''; 
+
+// optional - path where the compiled js files will be stored (default value: '' - for backward compatibility)
+$config['assets_dir_js'] = '';     
 
 // where to look for css files (default value: 'assets/css')
 $config['css_dir'] = 'assets/css';
@@ -115,6 +121,9 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 ```
     
 ## Changelog
+
+29 Dec 2016
+* introduce option to save compiled css and js files in different folders - new config variables: `$config['assets_dir_css']` and `$config['assets_dir_js']`.
 
 29 Apr 2015
 * allow to use automatic file name for particular deploy when you have `$config['auto_names']` set to `FALSE`
