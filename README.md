@@ -130,7 +130,7 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 * documentation update
 
 20 Apr 2015
-* Closure compilerconfiguration extracted to config file
+* Closure compiler configuration extracted to config file 
 
 22 Mar 2015
 * method chaining support
@@ -146,7 +146,7 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 * Unit testing
 
 09 Feb 2015
-* 2 new engines to compres JS files
+* 2 new engines to compress JS files
 * documentation update
 
 13 Oct 2014
@@ -157,7 +157,7 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 
 4 July 2014
 * sample JavaScript files to see how it works 
-* detection of empty JS file couses force refresh
+* detection of empty JS file causes force refresh
 
 23 May 2014
 
@@ -167,7 +167,7 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 
 11 Mar 2014
 
-* completly rewrite CSS parser - uses cssmin compress CSS,
+* completely rewrite CSS parser - uses cssmin compress CSS,
 * detects file modification time no longer force rewrites,
 * example usage now included withing app
 
