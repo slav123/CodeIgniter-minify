@@ -55,6 +55,20 @@ class Minify
 	public $assets_dir = 'assets';
 
 	/**
+	 * Assets dir for css (optional).
+	 *
+	 * @var string
+	 */
+	public $assets_dir_css = '';
+
+	/**
+	 * Assets dir for js (optional).
+	 *
+	 * @var string
+	 */
+	public $assets_dir_js = '';
+
+	/**
 	 * Css dir.
 	 *
 	 * @var string
@@ -143,6 +157,8 @@ class Minify
 
 		// user specified settings from config file
 		$this->assets_dir         = $this->ci->config->item('assets_dir', 'minify') ?: $this->assets_dir;
+		$this->assets_dir_css     = $this->ci->config->item('assets_dir_css', 'minify') ?: $this->assets_dir_css;
+		$this->assets_dir_js      = $this->ci->config->item('assets_dir_js', 'minify') ?: $this->assets_dir_js;
 		$this->css_dir            = $this->ci->config->item('css_dir', 'minify') ?: $this->css_dir;
 		$this->js_dir             = $this->ci->config->item('js_dir', 'minify') ?: $this->js_dir;
 		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
@@ -431,7 +447,9 @@ class Minify
 					$this->js_file = $value;
 				}
 
-				$this->_js_file = $this->assets_dir . '/' . $value;
+				// determine if we have special dir for js specified
+				$assets_dir = empty($this->assets_dir_js) ? $this->assets_dir : $this->assets_dir_js;
+				$this->_js_file = $assets_dir . '/' . $value;
 
 				if ( ! file_exists($this->_js_file) && ! touch($this->_js_file))
 				{
@@ -455,7 +473,9 @@ class Minify
 					$this->css_file = $value;
 				}
 
-				$this->_css_file = $this->assets_dir . '/' . $value;
+				// determine if we have special dir for css specified
+				$assets_dir = empty($this->assets_dir_css) ? $this->assets_dir : $this->assets_dir_css;
+				$this->_css_file = $assets_dir . '/' . $value;
 
 				if ( ! file_exists($this->_css_file) && ! touch($this->_css_file))
 				{
@@ -689,9 +709,19 @@ class Minify
 	 */
 	private function _config_checks()
 	{
-		if ( ! is_writable($this->assets_dir))
+		if ((empty($this->assets_dir_css) OR empty($this->assets_dir_js)) && ! is_writable($this->assets_dir))
 		{
 			throw new Exception('Assets directory ' . $this->assets_dir . ' is not writable');
+		}
+
+		if ( ! empty($this->assets_dir_css) && ! is_writable($this->assets_dir_css))
+		{
+			throw new Exception('Assets directory for css ' . $this->assets_dir_css . ' is not writable');
+		}
+
+		if ( ! empty($this->assets_dir_js) && ! is_writable($this->assets_dir_js))
+		{
+			throw new Exception('Assets directory for js ' . $this->assets_dir_js . ' is not writable');
 		}
 
 		if (empty($this->css_dir))

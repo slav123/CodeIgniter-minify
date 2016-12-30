@@ -130,6 +130,30 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->minify->css_file, '72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css', 'output css auto file name');
 	}
 
+// feature/custom_folders_for_compiled_css_and_js
+	public function testCustomJsPathForAssets()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->js_dir = 'assets/js';
+		$this->minify->js(array('helpers.js'));
+
+		$result = $this->minify->deploy_js(TRUE, 'auto');
+		$this->assertEquals('<script type="text/javascript" src="assets/js/91e30b9b77dc616476b94acf4dbb25c1.min.js"></script>'.PHP_EOL, $result, 'deploy js with custom save path');
+	}
+
+	public function testCustomCssPathForAssets()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->css_dir = 'assets/css';
+		$this->minify->css(array('style.css'));
+
+		$result = $this->minify->deploy_css(TRUE, 'auto');
+		$this->assertEquals('<link href="assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />'.PHP_EOL, $result, 'deploy css with custom save path');
+
 	public function testCssCompressWithGroupNames()
 	{
 		$this->minify = new Minify();
