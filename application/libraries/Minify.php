@@ -48,6 +48,13 @@ class Minify
 	protected $js_array = array();
 
 	/**
+	 * Enable/disable.
+	 *
+	 * @var bool
+	 */
+	public $enabled = TRUE;
+
+	/**
 	 * Assets dir.
 	 *
 	 * @var string
@@ -156,6 +163,7 @@ class Minify
 		$this->ci->load->config('minify', TRUE, TRUE);
 
 		// user specified settings from config file
+		$this->enabled            = $this->ci->config->item('enabled', 'minify') ?: $this->enabled;
 		$this->assets_dir         = $this->ci->config->item('assets_dir', 'minify') ?: $this->assets_dir;
 		$this->assets_dir_css     = $this->ci->config->item('assets_dir_css', 'minify') ?: $this->assets_dir_css;
 		$this->assets_dir_js      = $this->ci->config->item('assets_dir_js', 'minify') ?: $this->assets_dir_js;
@@ -376,6 +384,11 @@ class Minify
 	 */
 	private function _deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
+		if ($this->enabled === FALSE)
+		{
+			return $this->_simple_output('css', $group);
+		}
+
 		if ($this->auto_names OR $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->css_array[$group])) . '.css';
@@ -405,6 +418,11 @@ class Minify
 	 */
 	private function _deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
+		if ($this->enabled === FALSE)
+		{
+			return $this->_simple_output('js', $group);
+		}
+
 		if ($this->auto_names OR $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->js_array[$group])) . '.js';
@@ -545,6 +563,46 @@ class Minify
 				$this->_concat_files($files_array, $directory, $out_file);
 			}
 		}
+	}
+
+	/**
+	 * simple output files - no compress, no compile (files in = files out)
+	 * good for debugging or development env
+	 *
+	 * @param string $type  Type (css | js)
+	 * @param string $group Group name
+	 *
+	 * @return string
+	 */
+	private function _simple_output($type, $group)
+	{
+		switch ($type)
+		{
+			case 'css':
+				$files     = $this->css_array[$group];
+				$directory = $this->css_dir;
+				$template  = '<link href="%s" rel="stylesheet" type="text/css" />';
+				break;
+			case 'js':
+				$files     = $this->js_array[$group];
+				$directory = $this->js_dir;
+				$template  = '<script type="text/javascript" src="%s"></script>';
+		}
+
+		$output = array();
+
+		foreach ($files as $file)
+		{
+			$filename = $directory . '/' . $file;
+			$output[] = sprintf($template, base_url($filename));
+		}
+
+		if ( ! empty($output))
+		{
+			return implode(PHP_EOL, $output);
+		}
+
+		return '';
 	}
 
 	//--------------------------------------------------------------------

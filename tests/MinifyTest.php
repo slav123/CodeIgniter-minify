@@ -25,6 +25,40 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_object($this->minify), 'is object');
 	}
 
+	// test js when functionality is disabled
+	public function testJsDisabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->enabled = FALSE;
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy with add_js');
+
+		$this->assertEquals('<script type="text/javascript" src="assets/js/helpers.js"></script>'.
+			PHP_EOL.'<script type="text/javascript" src="assets/js/jqModal.js"></script>'.
+			PHP_EOL, $result, 'output js with disabled library\'s functionality');
+	}
+
+	// test css when functionality is disabled
+	public function testCssDisabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->enabled = FALSE;
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_string($result), 'deploy with add_css');
+
+		$this->assertEquals('<link href="assets/css/style.css" rel="stylesheet" type="text/css" />'.
+			PHP_EOL.'<link href="assets/css/browser-specific.css" rel="stylesheet" type="text/css" />'.
+			PHP_EOL, $result, 'output css with disabled library\'s functionality');
+	}
+
 	// check js compression
 	public function testJsCompress()
 	{
