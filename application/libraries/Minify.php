@@ -104,6 +104,13 @@ class Minify
 	public $auto_names = FALSE;
 
 	/**
+	 * File versioning.
+	 *
+	 * @var bool
+	 */
+	public $versioning = FALSE;
+
+	/**
 	 * Compress files or not.
 	 *
 	 * @var bool
@@ -164,6 +171,7 @@ class Minify
 		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
 		$this->js_file            = $this->ci->config->item('js_file', 'minify') ?: $this->js_file;
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
+		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
 		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
@@ -389,6 +397,11 @@ class Minify
 
 		$this->_scan_files('css', $force, $group);
 
+		if ($this->versioning)
+		{
+			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
+		}
+
 		return '<link href="' . base_url($this->_css_file) . '" rel="stylesheet" type="text/css" />';
 	}
 
@@ -417,6 +430,11 @@ class Minify
 		$this->_set('js_file', $file_name);
 
 		$this->_scan_files('js', $force, $group);
+
+		if ($this->versioning)
+		{
+			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
+		}
 
 		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
 	}

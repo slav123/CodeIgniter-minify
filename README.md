@@ -118,9 +118,18 @@ echo $this->minify->deploy_js(TRUE, 'auto', 'extra');
 
 //Output: '<link href="path-to-compiled-css-group" rel="stylesheet" type="text/css" />'
 //Output: '<script type="text/javascript" src="path-to-compiled-js-group-with-auto-file-name"></script>'.
+
+// you can enable versioning your your assets via config variable `$config['versioning']` or manually
+$this->minify->versioning = TRUE;
+echo $this->minify->deploy_js(); 
+
+//Output: '<script type="text/javascript" src="path-to-compiled.js?v=hash-here"></script>'.
 ```
     
 ## Changelog
+
+17 Jun 2017
+* new config variable to enable versioning assets `$config['versioning']` (default to FALSE)
 
 29 Dec 2016
 * introduce option to save compiled css and js files in different folders - new config variables: `$config['assets_dir_css']` and `$config['assets_dir_js']`.
