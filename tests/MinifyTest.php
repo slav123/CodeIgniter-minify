@@ -164,7 +164,6 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('<link href="assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />' . PHP_EOL, $result, 'deploy css with custom save path');
 	}
 
-
 	public function testCssCompressWithGroupNames()
 	{
 		$this->minify = new Minify();
@@ -199,5 +198,35 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_string($result), 'deploy with group name: sample2');
 
 		$this->assertEquals($this->minify->js_file, 'sample2_scripts.min.js', 'output js default file name for group: sample2');
+	}
+
+	// test versioning js
+	public function testJsVersioning()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->versioning = TRUE;
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy js with versioning');
+
+		$this->assertEquals('<script type="text/javascript" src="assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>'.PHP_EOL, $result, 'output js default file name with version');
+	}
+
+	// test versioning css
+	public function testCssVersioning()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_js = 'assets/css';
+		$this->minify->versioning = TRUE;
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_string($result), 'deploy css with versioning');
+
+		$this->assertEquals('<link href="/tmp/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />' . PHP_EOL, $result, 'output css default file name with versioning');
 	}
 }
