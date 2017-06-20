@@ -65,6 +65,13 @@ In the controller:
 $this->load->library('minify');
 // or load and assign custom config (will override values from config file)
 $this->load->library('minify', $config);
+// by default library's functionality is enabled, but in some cases you would like to return
+// assets without compilation and compression - when debugging or in development environment
+// in that case you can use config variable to disable it
+$config['enabled'] = FALSE;
+// or
+$this->minify->enabled = FALSE;
+
 ```
 In controller or view:	
 ```php
