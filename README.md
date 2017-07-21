@@ -190,7 +190,3 @@ echo $this->minify->deploy_js();
 ## Any questions?
 
 Report theme here: <https://github.com/slav123/CodeIgniter-minify/issues>
-
-## Sponsors
-
-This project is build with [PHP Storm](https://www.jetbrains.com/phpstorm/)
