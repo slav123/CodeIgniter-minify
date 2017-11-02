@@ -39,6 +39,25 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->minify->js_file, 'ut.min.js', 'output js file name');
 	}
 
+	// check js compression with closule compiler
+	public function testJsCompressWithClosureCompiler()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->js_dir = 'assets/js';
+		$this->minify->compression_engine['js'] = 'closurecompiler';
+		$this->minify->js(array('helpers.js'));
+
+		$result = $this->minify->deploy_js(TRUE, 'ut.js');
+		$this->assertTrue(is_string($result), 'deploy js with closurecompiler');
+		$this->assertEquals($this->minify->js_file, 'ut.min.js', 'output js file name');
+
+		$file_content = file_get_contents($this->minify->assets_dir.DIRECTORY_SEPARATOR.$this->minify->js_file);
+		$this->assertNotContains('Error', $file_content, 'output file has errors');
+		$this->assertTrue( ! empty($file_content), 'output is not empty');
+		
+	}
+
 	// test css compresion
 	public function testCssCompress()
 	{
