@@ -700,9 +700,11 @@ class Minify
 	{
 		$config = $this->closurecompiler;
 
-		$ch = curl_init('http://closure-compiler.appspot.com/compile');
+		$ch = curl_init('https://closure-compiler.appspot.com/compile');
 
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
