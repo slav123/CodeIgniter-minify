@@ -7,12 +7,12 @@ or <https://code.google.com/p/cssmin> to minify CSS and it uses
 [Google Closure compiler](https://developers.google.com/closure/compiler/) to 
 compress JavaScript
 
-##Instalation
+## Instalation
 Just put `Minify.php` file in libraries path, and create `minify.php` config file on config directory.
 
-##Using the library
+## Using the library
 
-####Configure the library:
+#### Configure the library:
 All directories needs to be writable. Next you can set your own values for config file.
 
 ```php
@@ -54,11 +54,11 @@ $config['compression_engine'] = array(
 $config['closurecompiler']['compilation_level'] = 'SIMPLE_OPTIMIZATIONS';
 ```
 
-####Available engines
+#### Available engines
 * CSS - `minify` or `cssmin` - both of them are local, just try out which one is better for you,
 * JS - `closurecompiler` makes API call to external server, it's slower then regular inline engine, but it's super efficient with compression, `jsmin` and `jsminplus` are local
 
-####Run the library
+#### Run the library
 In the controller:
 ```php
 // load the library
