@@ -566,9 +566,7 @@ class Minify
 			foreach ($file_array as $file_name)
 			{
 				$file_name = $directory . '/' . $file_name;
-				$handle    = fopen($file_name, 'r');
-				$contents  = fread($handle, filesize($file_name));
-				fclose($handle);
+				$contents  = file_get_contents($file_name);
 
 				// if this is javascript file, check if we have ; at the end
 				if (preg_match("/.js$/i", $out_file)) {
@@ -588,9 +586,7 @@ class Minify
 		if ($this->compress)
 		{
 			// read output file contest (already concated)
-			$handle   = fopen($out_file, 'r');
-			$contents = fread($handle, filesize($out_file));
-			fclose($handle);
+			$contents = file_get_contents($out_file);
 
 			// recreate file
 			$handle = fopen($out_file, 'w');
