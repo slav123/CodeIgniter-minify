@@ -104,6 +104,27 @@ class Minify
 	public $js_file = 'scripts.js';
 
 	/**
+	 * Output css tag name.
+	 *
+	 * @var string
+	 */
+	public $css_tag = '<link href="%s" rel="stylesheet" type="text/css" />';
+
+	/**
+	 * Output js tag name.
+	 *
+	 * @var string
+	 */
+	public $js_tag = '<script type="text/javascript" src="%s"></script>';
+
+	/**
+	 * Use html tags on output.
+	 *
+	 * @var string
+	 */
+	public $html_tags = TRUE;
+
+	/**
 	 * Automatic file names.
 	 *
 	 * @var bool
@@ -178,6 +199,9 @@ class Minify
 		$this->js_dir             = $this->ci->config->item('js_dir', 'minify') ?: $this->js_dir;
 		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
 		$this->js_file            = $this->ci->config->item('js_file', 'minify') ?: $this->js_file;
+		$this->css_tag            = $this->ci->config->item('css_tag', 'minify') ?: $this->css_tag;
+		$this->js_tag             = $this->ci->config->item('js_tag', 'minify') ?: $this->js_tag;
+		$this->html_tags          = $this->ci->config->item('html_tags', 'minify') ?: $this->html_tags;
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
 		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
@@ -318,11 +342,11 @@ class Minify
 	 * @param null $file_name File name to create
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public function deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
-		$return = '';
+		$return = array();
 
 		if (is_null($file_name))
 		{
@@ -333,13 +357,15 @@ class Minify
 		{
 			foreach ($this->css_array as $group_name => $group_array)
 			{
-				$return .= $this->_deploy_css($force, $file_name, $group_name) . PHP_EOL;
+				$return[] = $this->_deploy_css($force, $file_name, $group_name);
 			}
 		}
 		else
 		{
-			$return .= $this->_deploy_css($force, $file_name, $group);
+			$return[] = $this->_deploy_css($force, $file_name, $group);
 		}
+
+		$return = $this->_output($return, 'css');
 
 		return $return;
 	}
@@ -353,11 +379,11 @@ class Minify
 	 * @param null $file_name File name
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public function deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
-		$return = '';
+		$return = array();
 
 		if (is_null($file_name))
 		{
@@ -368,13 +394,15 @@ class Minify
 		{
 			foreach ($this->js_array as $group_name => $group_array)
 			{
-				$return .= $this->_deploy_js($force, $file_name, $group_name) . PHP_EOL;
+				$return[] = $this->_deploy_js($force, $file_name, $group_name);
 			}
 		}
 		else
 		{
-			$return .= $this->_deploy_js($force, $file_name, $group);
+			$return[] = $this->_deploy_js($force, $file_name, $group);
 		}
+
+		$return = $this->_output($return, 'js');
 
 		return $return;
 	}
@@ -415,7 +443,7 @@ class Minify
 			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
 		}
 
-		return '<link href="' . base_url($this->_css_file) . '" rel="stylesheet" type="text/css" />';
+		return base_url($this->_css_file);
 	}
 
 	//--------------------------------------------------------------------
@@ -454,7 +482,7 @@ class Minify
 			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
 		}
 
-		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
+		return base_url($this->_js_file);
 	}
 
 	//--------------------------------------------------------------------
@@ -584,13 +612,51 @@ class Minify
 	}
 
 	/**
+	 * output files with proper template for html_tags
+	 * or without as array
+	 *
+	 * @param array  $files Files array
+	 * @param string $type  Type (css | js)
+	 *
+	 * @return string|array
+	 */
+	private function _output($files, $type)
+	{
+		$files = new RecursiveIteratorIterator(new RecursiveArrayIterator($files));
+		$files = iterator_to_array($files, FALSE);
+
+		switch ($type)
+		{
+			case 'css':
+				$template  = $this->css_tag;
+				break;
+			case 'js':
+				$template  = $this->js_tag;
+		}
+
+		$output = array();
+
+		foreach ($files as $file)
+		{
+			$output[] = $this->html_tags ? sprintf($template, base_url($file)) : base_url($file);
+		}
+
+		if ( ! empty($output))
+		{
+			return $this->html_tags ? implode(PHP_EOL, $output) : $output;
+		}
+
+		return $this->html_tags ? '' : array();
+	}
+
+	/**
 	 * simple output files - no compress, no compile (files in = files out)
 	 * good for debugging or development env
 	 *
 	 * @param string $type  Type (css | js)
 	 * @param string $group Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _simple_output($type, $group)
 	{
@@ -599,12 +665,12 @@ class Minify
 			case 'css':
 				$files     = $this->css_array[$group];
 				$directory = $this->css_dir;
-				$template  = '<link href="%s" rel="stylesheet" type="text/css" />';
+				$template  = $this->css_tag;
 				break;
 			case 'js':
 				$files     = $this->js_array[$group];
 				$directory = $this->js_dir;
-				$template  = '<script type="text/javascript" src="%s"></script>';
+				$template  = $this->js_tag;
 		}
 
 		$output = array();
@@ -612,15 +678,10 @@ class Minify
 		foreach ($files as $file)
 		{
 			$filename = $directory . '/' . $file;
-			$output[] = sprintf($template, base_url($filename));
+			$output[] = base_url($filename);
 		}
 
-		if ( ! empty($output))
-		{
-			return implode(PHP_EOL, $output);
-		}
-
-		return '';
+		return $output;
 	}
 
 	//--------------------------------------------------------------------
