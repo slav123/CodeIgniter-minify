@@ -104,14 +104,14 @@ class Minify
 	public $js_file = 'scripts.js';
 
 	/**
-	 * Output css tag name.
+	 * Output css tag template.
 	 *
 	 * @var string
 	 */
 	public $css_tag = '<link href="%s" rel="stylesheet" type="text/css" />';
 
 	/**
-	 * Output js tag name.
+	 * Output js tag template.
 	 *
 	 * @var string
 	 */
@@ -357,17 +357,15 @@ class Minify
 		{
 			foreach ($this->css_array as $group_name => $group_array)
 			{
-				$return[] = $this->_deploy_css($force, $file_name, $group_name);
+				$return = array_merge($return, $this->_deploy_css($force, $file_name, $group_name));
 			}
 		}
 		else
 		{
-			$return[] = $this->_deploy_css($force, $file_name, $group);
+			$return = array_merge($return, $this->_deploy_css($force, $file_name, $group));
 		}
 
-		$return = $this->_output($return, 'css');
-
-		return $return;
+		return $this->_output($return, 'css');
 	}
 
 	//--------------------------------------------------------------------
@@ -394,17 +392,15 @@ class Minify
 		{
 			foreach ($this->js_array as $group_name => $group_array)
 			{
-				$return[] = $this->_deploy_js($force, $file_name, $group_name);
+				$return = array_merge($return, $this->_deploy_js($force, $file_name, $group_name));
 			}
 		}
 		else
 		{
-			$return[] = $this->_deploy_js($force, $file_name, $group);
+			$return = array_merge($return, $this->_deploy_js($force, $file_name, $group));
 		}
 
-		$return = $this->_output($return, 'js');
-
-		return $return;
+		return $this->_output($return, 'js');
 	}
 
 	//--------------------------------------------------------------------
@@ -416,7 +412,7 @@ class Minify
 	 * @param null $file_name File name to create
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
@@ -443,7 +439,7 @@ class Minify
 			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
 		}
 
-		return base_url($this->_css_file);
+		return [base_url($this->_css_file)];
 	}
 
 	//--------------------------------------------------------------------
@@ -455,7 +451,7 @@ class Minify
 	 * @param null $file_name File name
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
@@ -482,7 +478,7 @@ class Minify
 			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
 		}
 
-		return base_url($this->_js_file);
+		return [base_url($this->_js_file)];
 	}
 
 	//--------------------------------------------------------------------
@@ -622,9 +618,6 @@ class Minify
 	 */
 	private function _output($files, $type)
 	{
-		$files = new RecursiveIteratorIterator(new RecursiveArrayIterator($files));
-		$files = iterator_to_array($files, FALSE);
-
 		switch ($type)
 		{
 			case 'css':
@@ -867,6 +860,16 @@ class Minify
 		if (empty($this->js_dir))
 		{
 			throw new Exception('JS directory must be set');
+		}
+
+		if ($this->html_tags === TRUE && empty($this->css_tag))
+		{
+			throw new Exception('CSS tag template must be set');
+		}
+
+		if ($this->html_tags === TRUE && empty($this->js_tag))
+		{
+			throw new Exception('JS tag template must be set');
 		}
 
 		if ( ! $this->auto_names)

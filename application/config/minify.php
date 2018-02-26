@@ -26,6 +26,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @link      http://www.spidersoft.com.au/projects/codeigniter-minify/
  */
 
+// enable/disable library (default value: 'TRUE')
+// when enabled === FALSE library return assets without compilation and compression 
+// usefull when debugging or in development environment
+$config['enabled'] = TRUE;
+
 // output path where the compiled files will be stored (default value: 'assets')
 $config['assets_dir'] = 'assets';
 
