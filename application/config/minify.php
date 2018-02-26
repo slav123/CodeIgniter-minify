@@ -26,6 +26,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @link      http://www.spidersoft.com.au/projects/codeigniter-minify/
  */
 
+// enable/disable library (default value: 'TRUE')
+// when enabled === FALSE library return assets without compilation and compression 
+// usefull when debugging or in development environment
+$config['enabled'] = TRUE;
+
 // output path where the compiled files will be stored (default value: 'assets')
 $config['assets_dir'] = 'assets';
 
@@ -46,6 +51,16 @@ $config['css_file'] = 'styles.css';
 
 // default file name for js (default value: 'scripts.js')
 $config['js_file'] = 'scripts.js';
+
+// default tag for css (default value: '<link href="%s" rel="stylesheet" type="text/css" />')
+$config['css_tag'] = '<link href="%s" rel="stylesheet" type="text/css" />';
+
+// default tag for js (default value: '<script type="text/javascript" src="%s"></script>')
+$config['js_tag'] = '<script type="text/javascript" src="%s"></script>';
+
+// use html tags on output and return as a string (default value: 'TRUE')
+// if html_tags === FALSE - array with links to assets is returned
+$config['html_tags'] = TRUE;
 
 // use automatic file names (default value: 'FALSE')
 $config['auto_names'] = FALSE;
