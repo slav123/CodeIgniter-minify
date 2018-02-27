@@ -439,7 +439,7 @@ class Minify
 			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
 		}
 
-		return [base_url($this->_css_file)];
+		return [$this->_css_file];
 	}
 
 	//--------------------------------------------------------------------
@@ -478,7 +478,7 @@ class Minify
 			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
 		}
 
-		return [base_url($this->_js_file)];
+		return [$this->_js_file];
 	}
 
 	//--------------------------------------------------------------------
@@ -671,7 +671,7 @@ class Minify
 		foreach ($files as $file)
 		{
 			$filename = $directory . '/' . $file;
-			$output[] = base_url($filename);
+			$output[] = $filename;
 		}
 
 		return $output;

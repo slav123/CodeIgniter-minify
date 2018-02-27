@@ -37,8 +37,8 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_string($result), 'deploy with add_js');
 
-		$this->assertEquals('<script type="text/javascript" src="assets/js/helpers.js"></script>'.
-			PHP_EOL.'<script type="text/javascript" src="assets/js/jqModal.js"></script>',
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/helpers.js"></script>'.
+			PHP_EOL.'<script type="text/javascript" src="http://minify.localhost/assets/js/jqModal.js"></script>',
 			$result, 'output js with disabled library\'s functionality');
 	}
 
@@ -54,8 +54,8 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_string($result), 'deploy with add_css');
 
-		$this->assertEquals('<link href="assets/css/style.css" rel="stylesheet" type="text/css" />'.
-			PHP_EOL.'<link href="assets/css/browser-specific.css" rel="stylesheet" type="text/css" />',
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/style.css" rel="stylesheet" type="text/css" />'.
+			PHP_EOL.'<link href="http://minify.localhost/assets/css/browser-specific.css" rel="stylesheet" type="text/css" />',
 			$result, 'output css with disabled library\'s functionality');
 	}
 
@@ -72,7 +72,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_array($result), 'deploy with add_js');
 
-		$this->assertEquals(array('assets/js/helpers.js', 'assets/js/jqModal.js'), $result, 'output js with no html tags');
+		$this->assertEquals(array('http://minify.localhost/assets/js/helpers.js', 'http://minify.localhost/assets/js/jqModal.js'), $result, 'output js with no html tags');
 	}
 
 	// test css when no html tags
@@ -88,7 +88,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_array($result), 'deploy with add_css');
 
-		$this->assertEquals(array('assets/css/style.css', 'assets/css/browser-specific.css'), $result, 'output css with no html tags');
+		$this->assertEquals(array('http://minify.localhost/assets/css/style.css', 'http://minify.localhost/assets/css/browser-specific.css'), $result, 'output css with no html tags');
 	}
 
 	// test js when no html tags
@@ -103,7 +103,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_array($result), 'deploy with add_js');
 
-		$this->assertEquals(array('assets/js/scripts.min.js'), $result, 'output js with no html tags');
+		$this->assertEquals(array('http://minify.localhost/assets/js/scripts.min.js'), $result, 'output js with no html tags');
 	}
 
 	// test css when no html tags
@@ -118,7 +118,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_array($result), 'deploy with add_css');
 
-		$this->assertEquals(array('assets/css/styles.min.css'), $result, 'output css with no html tags');
+		$this->assertEquals(array('http://minify.localhost/assets/css/styles.min.css'), $result, 'output css with no html tags');
 	}
 
 	// check js compression
@@ -263,7 +263,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->minify->js(array('helpers.js'));
 
 		$result = $this->minify->deploy_js(TRUE, 'auto');
-		$this->assertEquals('<script type="text/javascript" src="assets/js/91e30b9b77dc616476b94acf4dbb25c1.min.js"></script>', $result, 'deploy js with custom save path');
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/91e30b9b77dc616476b94acf4dbb25c1.min.js"></script>', $result, 'deploy js with custom save path');
 	}
 
 	//
@@ -276,7 +276,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->minify->css(array('style.css'));
 
 		$result = $this->minify->deploy_css(TRUE, 'auto');
-		$this->assertEquals('<link href="assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />', $result, 'deploy css with custom save path');
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />', $result, 'deploy css with custom save path');
 	}
 
 	public function testCssCompressWithGroupNames()
@@ -320,6 +320,8 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 	{
 		$this->minify = new Minify();
 
+		unlink(APPPATH.'../assets/js/scripts.min.js');
+
 		$this->minify->assets_dir_js = 'assets/js';
 		$this->minify->versioning = TRUE;
 		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
@@ -327,7 +329,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_string($result), 'deploy js with versioning');
 
-		$this->assertEquals('<script type="text/javascript" src="assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>', $result, 'output js default file name with version');
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>', $result, 'output js default file name with version');
 	}
 
 	// test versioning css
@@ -335,13 +337,15 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 	{
 		$this->minify = new Minify();
 
-		$this->minify->assets_dir_js = 'assets/css';
+		unlink(APPPATH.'../assets/css/styles.min.css');
+
+		$this->minify->assets_dir_css = 'assets/css';
 		$this->minify->versioning = TRUE;
 		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
 
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_string($result), 'deploy css with versioning');
 
-		$this->assertEquals('<link href="/tmp/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name with versioning');
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name with versioning');
 	}
 }

@@ -3,13 +3,23 @@
 define('BASEPATH', 'application');
 define('APPPATH', 'application/');
 
+
+
 function get_instance()
 {
 	return new CI();
 }
 
 function base_url($string) {
-	return $string;
+	static $base_url = NULL;
+
+	if ($base_url === NULL)
+	{
+		include_once(APPPATH.'config/config.php');
+		$base_url = $config['base_url'];
+	}
+
+	return $base_url.$string;
 }
 
 function link_tag($string) {
