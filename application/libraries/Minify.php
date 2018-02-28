@@ -703,6 +703,8 @@ class Minify
 					if (substr(rtrim($contents), -1) !== ';') {
 						$contents .= ';';
 					}
+
+					$contents .= "\n";
 				}
 				fwrite($fh, $contents);
 			}
