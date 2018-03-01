@@ -16,6 +16,9 @@ Just put `Minify.php` file in libraries path, and create `minify.php` config fil
 All directories needs to be writable. Next you can set your own values for config file.
 
 ```php
+// enable/disable library (default value: 'TRUE')
+$config['enabled'] = TRUE;
+
 // output path where the compiled files will be stored (default value: 'assets')
 $config['assets_dir'] = 'assets';
 
@@ -151,6 +154,7 @@ echo $this->minify->deploy_js();
 
 17 Jun 2017
 * new config variable to enable versioning assets `$config['versioning']` (default to FALSE)
+* new config variable to enable/disable library - useful for debugging: `$config['enabled']` (default to TRUE)
 
 29 Dec 2016
 * introduce option to save compiled css and js files in different folders - new config variables: `$config['assets_dir_css']` and `$config['assets_dir_js']`.
