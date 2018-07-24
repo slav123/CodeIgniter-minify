@@ -758,9 +758,14 @@ class Minify
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_info=errors&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
 		curl_close($ch);
+
+		if (preg_match('/Input_0:[0-9]+: ERROR/', $output))
+		{
+			throw new Exception('Closure Compiler error: ' . $output);
+		}
 
 		return $output;
 	}
