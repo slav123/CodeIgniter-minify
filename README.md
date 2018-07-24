@@ -148,6 +148,9 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+24 Jul 2018
+* handle errors for closurecompiler engine
+
 26 Feb 2018
 * new config variable to determine if we want to return html tags (as string result) or only links to the assets (as array): `$config['html_tags']` (default to TRUE)
 * we can now specify what HTML tag will be used for CSS and JS through `$config['css_tag']` and `$config['js_tag']`
