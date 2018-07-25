@@ -348,4 +348,41 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name with versioning');
 	}
+
+	// test deploy on change js
+	public function testJsDeployOnChangeFalse()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->versioning = TRUE;
+
+		// deploy on change turned off
+		$this->minify->deploy_on_change = FALSE;
+		$this->minify->js(array('helpers.js'));
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy js with deploy_on_change = FALSE');
+
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>', $result, 'output js default file name without deploy_on_change');
+	}
+
+	// test deploy on change css
+	public function testCssDeployOnChangeFalse()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->versioning = TRUE;
+
+		// deploy on change turned off
+		$this->minify->deploy_on_change = FALSE;
+		$this->minify->css(array('style.css'));
+
+		$result = $this->minify->deploy_css(FALSE);
+		$this->assertTrue(is_string($result), 'deploy css with deploy_on_change = FALSE');
+
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name without deploy_on_change');
+	}
+
 }

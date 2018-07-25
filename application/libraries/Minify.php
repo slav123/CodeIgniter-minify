@@ -132,6 +132,13 @@ class Minify
 	public $auto_names = FALSE;
 
 	/**
+	 * Automatic deploy on change.
+	 *
+	 * @var bool
+	 */
+	public $deploy_on_change = TRUE;
+
+	/**
 	 * File versioning.
 	 *
 	 * @var bool
@@ -203,6 +210,7 @@ class Minify
 		$this->js_tag             = $this->ci->config->item('js_tag', 'minify') ?: $this->js_tag;
 		$this->html_tags          = $this->ci->config->item('html_tags', 'minify') ?: $this->html_tags;
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
+		$this->deploy_on_change   = $this->ci->config->item('deploy_on_change', 'minify') ?: $this->deploy_on_change;
 		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
@@ -583,7 +591,7 @@ class Minify
 
 				if (file_exists($filename))
 				{
-					if (filemtime($filename) > $this->_lmod[$type])
+					if ($this->deploy_on_change && filemtime($filename) > $this->_lmod[$type])
 					{
 						$compile = TRUE;
 					}
