@@ -53,6 +53,12 @@ $config['html_tags'] = TRUE;
 // use automatic file names (default value: 'FALSE')
 $config['auto_names'] = FALSE;
 
+// use to enable versioning your assets (default value: 'FALSE')
+$config['versioning'] = FALSE;
+
+// automatically deploy when there are any changes in files (default value: 'TRUE')
+$config['deploy_on_change'] = TRUE;
+
 // compress files or not (default value: 'TRUE')
 $config['compress'] = TRUE;
 
