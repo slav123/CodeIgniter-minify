@@ -154,6 +154,9 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+25 Jul 2018
+* new config variable to disable default behavior - deploy when any file is changed: `$config['change_on_deploy']` (default to TRUE)
+
 24 Jul 2018
 * handle errors for closurecompiler engine
 
