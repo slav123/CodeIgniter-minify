@@ -761,7 +761,12 @@ class Minify
 		$config = $this->closurecompiler;
 
 		$ch = curl_init('https://closure-compiler.appspot.com/compile');
-
+		
+		//if server is not https
+		if (empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off')
+		{
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		}
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
