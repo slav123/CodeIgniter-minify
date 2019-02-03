@@ -385,4 +385,36 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name without deploy_on_change');
 	}
 
+	// test js with custom base url
+	public function testJsWithChangedBaseUrl()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->base_url = 'http://cdn1.minify.localhost/';
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_array($result), 'deploy with add_js');
+
+		$this->assertEquals(array('http://cdn1.minify.localhost/assets/js/scripts.min.js'), $result, 'output js with no html tags and custom base_url');
+	}
+
+	// test css with custom base url
+	public function testCssWithChangedBaseUrl()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->base_url = 'http://cdn2.minify.localhost';
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_array($result), 'deploy with add_css');
+
+		$this->assertEquals(array('http://cdn2.minify.localhost/assets/css/styles.min.css'), $result, 'output css with no html tags and custom base_url');
+	}
+
 }

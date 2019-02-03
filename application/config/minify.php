@@ -38,7 +38,10 @@ $config['assets_dir'] = 'assets';
 $config['assets_dir_css'] = ''; 
 
 // optional - path where the compiled js files will be stored (default value: '' - for backward compatibility)
-$config['assets_dir_js'] = '';     
+$config['assets_dir_js'] = ''; 
+
+// optional - handy when your assets are in a different domain than main website (default value: '')
+$config['base_url'] = '';    
 
 // where to look for css files (default value: 'assets/css')
 $config['css_dir'] = 'assets/css';
