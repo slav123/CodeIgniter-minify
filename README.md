@@ -28,6 +28,9 @@ $config['assets_dir_css'] = '';
 // optional - path where the compiled js files will be stored (default value: '' - for backward compatibility)
 $config['assets_dir_js'] = '';     
 
+// optional - handy when your assets are in a different domain than main website (default value: '')
+$config['base_url'] = '';
+
 // where to look for css files (default value: 'assets/css')
 $config['css_dir'] = 'assets/css';
 
@@ -153,6 +156,9 @@ echo $this->minify->deploy_js();
 ```
     
 ## Changelog
+
+02 Feb 2019
+* new config variable to allow of use a custom domain/subdomain for your assets: `$config['base_url']` (default to '')
 
 25 Jul 2018
 * new config variable to disable default behavior - deploy when any file is changed: `$config['change_on_deploy']` (default to TRUE)

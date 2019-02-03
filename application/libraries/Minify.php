@@ -76,6 +76,13 @@ class Minify
 	public $assets_dir_js = '';
 
 	/**
+	 * Base URL.
+	 *
+	 * @var string
+	 */
+	public $base_url = '';
+
+	/**
 	 * Css dir.
 	 *
 	 * @var string
@@ -202,6 +209,7 @@ class Minify
 		$this->assets_dir         = $this->ci->config->item('assets_dir', 'minify') ?: $this->assets_dir;
 		$this->assets_dir_css     = $this->ci->config->item('assets_dir_css', 'minify') ?: $this->assets_dir_css;
 		$this->assets_dir_js      = $this->ci->config->item('assets_dir_js', 'minify') ?: $this->assets_dir_js;
+		$this->base_url           = $this->ci->config->item('base_url', 'minify') ?: $this->base_url;
 		$this->css_dir            = $this->ci->config->item('css_dir', 'minify') ?: $this->css_dir;
 		$this->js_dir             = $this->ci->config->item('js_dir', 'minify') ?: $this->js_dir;
 		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
@@ -639,7 +647,7 @@ class Minify
 
 		foreach ($files as $file)
 		{
-			$output[] = $this->html_tags ? sprintf($template, base_url($file)) : base_url($file);
+			$output[] = $this->html_tags ? sprintf($template, $this->_base_url($file)) : $this->_base_url($file);
 		}
 
 		if ( ! empty($output))
@@ -841,6 +849,25 @@ class Minify
 		$cssminify = new cssminify();
 		
 		return $cssminify->compress($data);
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Build correct URL for file
+	 *
+	 * @param string $file File with path
+	 *
+	 * @return string
+	 */
+	private function _base_url($file) 
+	{
+		if ($this->base_url === '')
+		{
+			return base_url($file);
+		}
+
+		return rtrim($this->base_url, '/') . '/' . $file;
 	}
 
 	//--------------------------------------------------------------------
