@@ -157,6 +157,9 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+11 Feb 2019
+* fixed an issue where not all config variables from the constructor were taken into account
+
 02 Feb 2019
 * new config variable to allow of use a custom domain/subdomain for your assets: `$config['base_url']` (default to '')
 
