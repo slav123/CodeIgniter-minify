@@ -223,9 +223,6 @@ class Minify
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
 		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
-		// save default names for later use/reset
-		$this->css_file_default   = $this->css_file;
-		$this->js_file_default    = $this->js_file;
 
 		if (count($config) > 0)
 		{
@@ -238,6 +235,10 @@ class Minify
 				}
 			}
 		}
+
+		// save default names for later use/reset
+		$this->css_file_default   = $this->css_file;
+		$this->js_file_default    = $this->js_file;
 
 		// perform checks
 		$this->_config_checks();
