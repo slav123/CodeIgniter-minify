@@ -153,6 +153,13 @@ class Minify
 	public $versioning = FALSE;
 
 	/**
+	 * File version number override.
+	 *
+	 * @var string
+	 */
+	public $version_number = NULL;
+
+	/**
 	 * Compress files or not.
 	 *
 	 * @var bool
@@ -220,6 +227,7 @@ class Minify
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
 		$this->deploy_on_change   = $this->ci->config->item('deploy_on_change', 'minify') ?: $this->deploy_on_change;
 		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
+		$this->version_number     = $this->ci->config->item('version_number', 'minify') ?: $this->version_number;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
 		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
@@ -453,7 +461,7 @@ class Minify
 
 		if ($this->versioning)
 		{
-			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
+			$this->_css_file = $this->_css_file . '?v=' . $this->_version_number($this->_css_file);
 		}
 
 		return [$this->_css_file];
@@ -492,7 +500,7 @@ class Minify
 
 		if ($this->versioning)
 		{
-			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
+			$this->_js_file = $this->_js_file . '?v=' . $this->_version_number($this->_js_file);
 		}
 
 		return [$this->_js_file];
@@ -688,6 +696,12 @@ class Minify
 		foreach ($files as $file)
 		{
 			$filename = $directory . '/' . $file;
+
+			if ($this->versioning)
+			{
+				$filename .= '?v=' . $this->_version_number($filename);
+			}
+
 			$output[] = $filename;
 		}
 
@@ -946,6 +960,26 @@ class Minify
 			}
 		}
 	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Get Version Number for file
+	 *
+	 * @param string $file File with path
+	 *
+	 * @return string
+	 */
+	private function _version_number($file)
+	{
+		if ( ! empty($this->version_number) )
+		{
+			return $this->version_number;
+		}
+
+		return md5_file($file);
+	}
+
 }
 /* End of file Minify.php */
 /* Location: ./libraries/Minify.php */
