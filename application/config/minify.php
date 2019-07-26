@@ -71,6 +71,9 @@ $config['auto_names'] = FALSE;
 // use to enable versioning your assets (default value: 'FALSE')
 $config['versioning'] = FALSE;
 
+// override version md5 with a number (default value: 'NULL')
+$config['version_number'] = NULL;
+
 // automatically deploy when there are any changes in files (default value: 'TRUE')
 $config['deploy_on_change'] = TRUE;
 
