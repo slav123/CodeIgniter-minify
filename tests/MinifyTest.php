@@ -349,6 +349,42 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name with versioning');
 	}
 
+	// test versioning js with custom version number
+	public function testJsVersioningCustomNumber()
+	{
+		$this->minify = new Minify();
+
+		unlink(APPPATH.'../assets/js/scripts.min.js');
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->versioning = TRUE;
+		$this->minify->version_number = '12345';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy js with versioning');
+
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=12345"></script>', $result, 'output js default file name with custom version number');
+	}
+
+	// test versioning css with custom version number
+	public function testCssVersioningCustomNumber()
+	{
+		$this->minify = new Minify();
+
+		unlink(APPPATH.'../assets/css/styles.min.css');
+
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->versioning = TRUE;
+		$this->minify->version_number = '12345';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_string($result), 'deploy css with versioning');
+
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=12345" rel="stylesheet" type="text/css" />', $result, 'output css default file name with custom version number');
+	}
+
 	// test deploy on change js
 	public function testJsDeployOnChangeFalse()
 	{

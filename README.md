@@ -157,6 +157,9 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+26 Jul 2019
+* added option to manually change version number for assets (thanks [screamingjungle](https://github.com/screamingjungle))
+
 11 Feb 2019
 * fixed an issue where not all config variables from the constructor were taken into account
 
