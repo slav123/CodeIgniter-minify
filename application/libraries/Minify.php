@@ -76,6 +76,13 @@ class Minify
 	public $assets_dir_js = '';
 
 	/**
+	 * Base URL.
+	 *
+	 * @var string
+	 */
+	public $base_url = '';
+
+	/**
 	 * Css dir.
 	 *
 	 * @var string
@@ -104,6 +111,27 @@ class Minify
 	public $js_file = 'scripts.js';
 
 	/**
+	 * Output css tag template.
+	 *
+	 * @var string
+	 */
+	public $css_tag = '<link href="%s" rel="stylesheet" type="text/css" />';
+
+	/**
+	 * Output js tag template.
+	 *
+	 * @var string
+	 */
+	public $js_tag = '<script type="text/javascript" src="%s"></script>';
+
+	/**
+	 * Use html tags on output.
+	 *
+	 * @var string
+	 */
+	public $html_tags = TRUE;
+
+	/**
 	 * Automatic file names.
 	 *
 	 * @var bool
@@ -111,11 +139,25 @@ class Minify
 	public $auto_names = FALSE;
 
 	/**
+	 * Automatic deploy on change.
+	 *
+	 * @var bool
+	 */
+	public $deploy_on_change = TRUE;
+
+	/**
 	 * File versioning.
 	 *
 	 * @var bool
 	 */
 	public $versioning = FALSE;
+
+	/**
+	 * File version number override.
+	 *
+	 * @var string
+	 */
+	public $version_number = NULL;
 
 	/**
 	 * Compress files or not.
@@ -174,18 +216,21 @@ class Minify
 		$this->assets_dir         = $this->ci->config->item('assets_dir', 'minify') ?: $this->assets_dir;
 		$this->assets_dir_css     = $this->ci->config->item('assets_dir_css', 'minify') ?: $this->assets_dir_css;
 		$this->assets_dir_js      = $this->ci->config->item('assets_dir_js', 'minify') ?: $this->assets_dir_js;
+		$this->base_url           = $this->ci->config->item('base_url', 'minify') ?: $this->base_url;
 		$this->css_dir            = $this->ci->config->item('css_dir', 'minify') ?: $this->css_dir;
 		$this->js_dir             = $this->ci->config->item('js_dir', 'minify') ?: $this->js_dir;
 		$this->css_file           = $this->ci->config->item('css_file', 'minify') ?: $this->css_file;
 		$this->js_file            = $this->ci->config->item('js_file', 'minify') ?: $this->js_file;
+		$this->css_tag            = $this->ci->config->item('css_tag', 'minify') ?: $this->css_tag;
+		$this->js_tag             = $this->ci->config->item('js_tag', 'minify') ?: $this->js_tag;
+		$this->html_tags          = $this->ci->config->item('html_tags', 'minify') ?: $this->html_tags;
 		$this->auto_names         = $this->ci->config->item('auto_names', 'minify') ?: $this->auto_names;
+		$this->deploy_on_change   = $this->ci->config->item('deploy_on_change', 'minify') ?: $this->deploy_on_change;
 		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
+		$this->version_number     = $this->ci->config->item('version_number', 'minify') ?: $this->version_number;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
 		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
 		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
-		// save default names for later use/reset
-		$this->css_file_default   = $this->css_file;
-		$this->js_file_default    = $this->js_file;
 
 		if (count($config) > 0)
 		{
@@ -198,6 +243,10 @@ class Minify
 				}
 			}
 		}
+
+		// save default names for later use/reset
+		$this->css_file_default   = $this->css_file;
+		$this->js_file_default    = $this->js_file;
 
 		// perform checks
 		$this->_config_checks();
@@ -318,11 +367,11 @@ class Minify
 	 * @param null $file_name File name to create
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public function deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
-		$return = '';
+		$return = array();
 
 		if (is_null($file_name))
 		{
@@ -333,15 +382,15 @@ class Minify
 		{
 			foreach ($this->css_array as $group_name => $group_array)
 			{
-				$return .= $this->_deploy_css($force, $file_name, $group_name) . PHP_EOL;
+				$return = array_merge($return, $this->_deploy_css($force, $file_name, $group_name));
 			}
 		}
 		else
 		{
-			$return .= $this->_deploy_css($force, $file_name, $group);
+			$return = array_merge($return, $this->_deploy_css($force, $file_name, $group));
 		}
 
-		return $return;
+		return $this->_output($return, 'css');
 	}
 
 	//--------------------------------------------------------------------
@@ -353,11 +402,11 @@ class Minify
 	 * @param null $file_name File name
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return string|array
 	 */
 	public function deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
-		$return = '';
+		$return = array();
 
 		if (is_null($file_name))
 		{
@@ -368,15 +417,15 @@ class Minify
 		{
 			foreach ($this->js_array as $group_name => $group_array)
 			{
-				$return .= $this->_deploy_js($force, $file_name, $group_name) . PHP_EOL;
+				$return = array_merge($return, $this->_deploy_js($force, $file_name, $group_name));
 			}
 		}
 		else
 		{
-			$return .= $this->_deploy_js($force, $file_name, $group);
+			$return = array_merge($return, $this->_deploy_js($force, $file_name, $group));
 		}
 
-		return $return;
+		return $this->_output($return, 'js');
 	}
 
 	//--------------------------------------------------------------------
@@ -388,7 +437,7 @@ class Minify
 	 * @param null $file_name File name to create
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
@@ -412,10 +461,10 @@ class Minify
 
 		if ($this->versioning)
 		{
-			$this->_css_file = $this->_css_file . '?v=' . md5_file($this->_css_file);
+			$this->_css_file = $this->_css_file . '?v=' . $this->_version_number($this->_css_file);
 		}
 
-		return '<link href="' . base_url($this->_css_file) . '" rel="stylesheet" type="text/css" />';
+		return [$this->_css_file];
 	}
 
 	//--------------------------------------------------------------------
@@ -427,7 +476,7 @@ class Minify
 	 * @param null $file_name File name
 	 * @param null $group     Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
@@ -451,10 +500,10 @@ class Minify
 
 		if ($this->versioning)
 		{
-			$this->_js_file = $this->_js_file . '?v=' . md5_file($this->_js_file);
+			$this->_js_file = $this->_js_file . '?v=' . $this->_version_number($this->_js_file);
 		}
 
-		return '<script type="text/javascript" src="' . base_url($this->_js_file) . '"></script>';
+		return [$this->_js_file];
 	}
 
 	//--------------------------------------------------------------------
@@ -559,7 +608,7 @@ class Minify
 
 				if (file_exists($filename))
 				{
-					if (filemtime($filename) > $this->_lmod[$type])
+					if ($this->deploy_on_change && filemtime($filename) > $this->_lmod[$type])
 					{
 						$compile = TRUE;
 					}
@@ -584,13 +633,48 @@ class Minify
 	}
 
 	/**
+	 * output files with proper template for html_tags
+	 * or without as array
+	 *
+	 * @param array  $files Files array
+	 * @param string $type  Type (css | js)
+	 *
+	 * @return string|array
+	 */
+	private function _output($files, $type)
+	{
+		switch ($type)
+		{
+			case 'css':
+				$template  = $this->css_tag;
+				break;
+			case 'js':
+				$template  = $this->js_tag;
+		}
+
+		$output = array();
+
+		foreach ($files as $file)
+		{
+			$output[] = $this->html_tags ? sprintf($template, $this->_base_url($file)) : $this->_base_url($file);
+		}
+
+		if ( ! empty($output))
+		{
+			return $this->html_tags ? implode(PHP_EOL, $output) : $output;
+		}
+
+		return $this->html_tags ? '' : array();
+	}
+
+	/**
 	 * simple output files - no compress, no compile (files in = files out)
 	 * good for debugging or development env
 	 *
 	 * @param string $type  Type (css | js)
 	 * @param string $group Group name
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function _simple_output($type, $group)
 	{
@@ -599,12 +683,12 @@ class Minify
 			case 'css':
 				$files     = $this->css_array[$group];
 				$directory = $this->css_dir;
-				$template  = '<link href="%s" rel="stylesheet" type="text/css" />';
+				$template  = $this->css_tag;
 				break;
 			case 'js':
 				$files     = $this->js_array[$group];
 				$directory = $this->js_dir;
-				$template  = '<script type="text/javascript" src="%s"></script>';
+				$template  = $this->js_tag;
 		}
 
 		$output = array();
@@ -612,15 +696,16 @@ class Minify
 		foreach ($files as $file)
 		{
 			$filename = $directory . '/' . $file;
-			$output[] = sprintf($template, base_url($filename));
+
+			if ($this->versioning)
+			{
+				$filename .= '?v=' . $this->_version_number($filename);
+			}
+
+			$output[] = $filename;
 		}
 
-		if ( ! empty($output))
-		{
-			return implode(PHP_EOL, $output);
-		}
-
-		return '';
+		return $output;
 	}
 
 	//--------------------------------------------------------------------
@@ -642,15 +727,15 @@ class Minify
 			foreach ($file_array as $file_name)
 			{
 				$file_name = $directory . '/' . $file_name;
-				$handle    = fopen($file_name, 'r');
-				$contents  = fread($handle, filesize($file_name));
-				fclose($handle);
+				$contents  = file_get_contents($file_name);
 
 				// if this is javascript file, check if we have ; at the end
 				if (preg_match("/.js$/i", $out_file)) {
 					if (substr(rtrim($contents), -1) !== ';') {
 						$contents .= ';';
 					}
+
+					$contents .= "\n";
 				}
 				fwrite($fh, $contents);
 			}
@@ -664,9 +749,7 @@ class Minify
 		if ($this->compress)
 		{
 			// read output file contest (already concated)
-			$handle   = fopen($out_file, 'r');
-			$contents = fread($handle, filesize($out_file));
-			fclose($handle);
+			$contents = file_get_contents($out_file);
 
 			// recreate file
 			$handle = fopen($out_file, 'w');
@@ -700,13 +783,20 @@ class Minify
 	{
 		$config = $this->closurecompiler;
 
-		$ch = curl_init('http://closure-compiler.appspot.com/compile');
+		$ch = curl_init('https://closure-compiler.appspot.com/compile');
 
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_info=errors&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
 		curl_close($ch);
+
+		if (preg_match('/Input_0:[0-9]+: ERROR/', $output))
+		{
+			throw new Exception('Closure Compiler error: ' . $output);
+		}
 
 		return $output;
 	}
@@ -779,6 +869,25 @@ class Minify
 	//--------------------------------------------------------------------
 
 	/**
+	 * Build correct URL for file
+	 *
+	 * @param string $file File with path
+	 *
+	 * @return string
+	 */
+	private function _base_url($file) 
+	{
+		if ($this->base_url === '')
+		{
+			return base_url($file);
+		}
+
+		return rtrim($this->base_url, '/') . '/' . $file;
+	}
+
+	//--------------------------------------------------------------------
+
+	/**
 	 * Perform config checks
 	 *
 	 * @return void
@@ -808,6 +917,16 @@ class Minify
 		if (empty($this->js_dir))
 		{
 			throw new Exception('JS directory must be set');
+		}
+
+		if ($this->html_tags === TRUE && empty($this->css_tag))
+		{
+			throw new Exception('CSS tag template must be set');
+		}
+
+		if ($this->html_tags === TRUE && empty($this->js_tag))
+		{
+			throw new Exception('JS tag template must be set');
 		}
 
 		if ( ! $this->auto_names)
@@ -841,6 +960,26 @@ class Minify
 			}
 		}
 	}
+
+	//--------------------------------------------------------------------
+
+	/**
+	 * Get Version Number for file
+	 *
+	 * @param string $file File with path
+	 *
+	 * @return string
+	 */
+	private function _version_number($file)
+	{
+		if ( ! empty($this->version_number) )
+		{
+			return $this->version_number;
+		}
+
+		return md5_file($file);
+	}
+
 }
 /* End of file Minify.php */
 /* Location: ./libraries/Minify.php */

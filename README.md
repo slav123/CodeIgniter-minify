@@ -16,6 +16,9 @@ Just put `Minify.php` file in libraries path, and create `minify.php` config fil
 All directories needs to be writable. Next you can set your own values for config file.
 
 ```php
+// enable/disable library (default value: 'TRUE')
+$config['enabled'] = TRUE;
+
 // output path where the compiled files will be stored (default value: 'assets')
 $config['assets_dir'] = 'assets';
 
@@ -24,6 +27,9 @@ $config['assets_dir_css'] = '';
 
 // optional - path where the compiled js files will be stored (default value: '' - for backward compatibility)
 $config['assets_dir_js'] = '';     
+
+// optional - handy when your assets are in a different domain than main website (default value: '')
+$config['base_url'] = '';
 
 // where to look for css files (default value: 'assets/css')
 $config['css_dir'] = 'assets/css';
@@ -37,8 +43,24 @@ $config['css_file'] = 'styles.css';
 // default file name for js (default value: 'scripts.js')
 $config['js_file'] = 'scripts.js';
 
+// default tag for css (default value: '<link href="%s" rel="stylesheet" type="text/css" />')
+$config['css_tag'] = '<link href="%s" rel="stylesheet" type="text/css" />';
+
+// default tag for js (default value: '<script type="text/javascript" src="%s"></script>')
+$config['js_tag'] = '<script type="text/javascript" src="%s"></script>';
+
+// use html tags on output and return as a string (default value: 'TRUE')
+// if html_tags === FALSE - array with links to assets is returned
+$config['html_tags'] = TRUE;
+
 // use automatic file names (default value: 'FALSE')
 $config['auto_names'] = FALSE;
+
+// use to enable versioning your assets (default value: 'FALSE')
+$config['versioning'] = FALSE;
+
+// automatically deploy when there are any changes in files (default value: 'TRUE')
+$config['deploy_on_change'] = TRUE;
 
 // compress files or not (default value: 'TRUE')
 $config['compress'] = TRUE;
@@ -135,8 +157,28 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+26 Jul 2019
+* added option to manually change version number for assets (thanks [screamingjungle](https://github.com/screamingjungle))
+
+11 Feb 2019
+* fixed an issue where not all config variables from the constructor were taken into account
+
+02 Feb 2019
+* new config variable to allow of use a custom domain/subdomain for your assets: `$config['base_url']` (default to '')
+
+25 Jul 2018
+* new config variable to disable default behavior - deploy when any file is changed: `$config['change_on_deploy']` (default to TRUE)
+
+24 Jul 2018
+* handle errors for closurecompiler engine
+
+26 Feb 2018
+* new config variable to determine if we want to return html tags (as string result) or only links to the assets (as array): `$config['html_tags']` (default to TRUE)
+* we can now specify what HTML tag will be used for CSS and JS through `$config['css_tag']` and `$config['js_tag']`
+
 17 Jun 2017
 * new config variable to enable versioning assets `$config['versioning']` (default to FALSE)
+* new config variable to enable/disable library - useful for debugging: `$config['enabled']` (default to TRUE)
 
 29 Dec 2016
 * introduce option to save compiled css and js files in different folders - new config variables: `$config['assets_dir_css']` and `$config['assets_dir_js']`.

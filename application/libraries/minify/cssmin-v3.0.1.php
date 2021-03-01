@@ -2219,7 +2219,9 @@ class CssMin
 		{
 		// Create the class index for autoloading or including
 		$paths = array(dirname(__FILE__));
-		while (list($i, $path) = each($paths))
+		// changed by michalsn on 2019/07/26
+		// each function was deprecated
+		foreach ($paths as $i => $path)
 			{
 			$subDirectorys = glob($path . "*", GLOB_MARK | GLOB_ONLYDIR | GLOB_NOSORT);
 			if (is_array($subDirectorys))

@@ -37,9 +37,9 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_string($result), 'deploy with add_js');
 
-		$this->assertEquals('<script type="text/javascript" src="assets/js/helpers.js"></script>'.
-			PHP_EOL.'<script type="text/javascript" src="assets/js/jqModal.js"></script>'.
-			PHP_EOL, $result, 'output js with disabled library\'s functionality');
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/helpers.js"></script>'.
+			PHP_EOL.'<script type="text/javascript" src="http://minify.localhost/assets/js/jqModal.js"></script>',
+			$result, 'output js with disabled library\'s functionality');
 	}
 
 	// test css when functionality is disabled
@@ -54,9 +54,71 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_string($result), 'deploy with add_css');
 
-		$this->assertEquals('<link href="assets/css/style.css" rel="stylesheet" type="text/css" />'.
-			PHP_EOL.'<link href="assets/css/browser-specific.css" rel="stylesheet" type="text/css" />'.
-			PHP_EOL, $result, 'output css with disabled library\'s functionality');
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/style.css" rel="stylesheet" type="text/css" />'.
+			PHP_EOL.'<link href="http://minify.localhost/assets/css/browser-specific.css" rel="stylesheet" type="text/css" />',
+			$result, 'output css with disabled library\'s functionality');
+	}
+
+	// test js when no html tags
+	public function testJsNoHtmlTagsWithDisabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->enabled = FALSE;
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_array($result), 'deploy with add_js');
+
+		$this->assertEquals(array('http://minify.localhost/assets/js/helpers.js', 'http://minify.localhost/assets/js/jqModal.js'), $result, 'output js with no html tags');
+	}
+
+	// test css when no html tags
+	public function testCssNoHtmlTagsWithDisabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->enabled = FALSE;
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_array($result), 'deploy with add_css');
+
+		$this->assertEquals(array('http://minify.localhost/assets/css/style.css', 'http://minify.localhost/assets/css/browser-specific.css'), $result, 'output css with no html tags');
+	}
+
+	// test js when no html tags
+	public function testJsNoHtmlTagsWithEnabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_array($result), 'deploy with add_js');
+
+		$this->assertEquals(array('http://minify.localhost/assets/js/scripts.min.js'), $result, 'output js with no html tags');
+	}
+
+	// test css when no html tags
+	public function testCssNoHtmlTagsWithEnabled()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_array($result), 'deploy with add_css');
+
+		$this->assertEquals(array('http://minify.localhost/assets/css/styles.min.css'), $result, 'output css with no html tags');
 	}
 
 	// check js compression
@@ -71,6 +133,25 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_string($result), 'deploy js with name');
 
 		$this->assertEquals($this->minify->js_file, 'ut.min.js', 'output js file name');
+	}
+
+	// check js compression with closule compiler
+	public function testJsCompressWithClosureCompiler()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->js_dir = 'assets/js';
+		$this->minify->compression_engine['js'] = 'closurecompiler';
+		$this->minify->js(array('helpers.js'));
+
+		$result = $this->minify->deploy_js(TRUE, 'ut.js');
+		$this->assertTrue(is_string($result), 'deploy js with closurecompiler');
+		$this->assertEquals($this->minify->js_file, 'ut.min.js', 'output js file name');
+
+		$file_content = file_get_contents($this->minify->assets_dir.DIRECTORY_SEPARATOR.$this->minify->js_file);
+		$this->assertNotContains('Error', $file_content, 'output file has errors');
+		$this->assertTrue( ! empty($file_content), 'output is not empty');
+		
 	}
 
 	// test css compresion
@@ -182,7 +263,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->minify->js(array('helpers.js'));
 
 		$result = $this->minify->deploy_js(TRUE, 'auto');
-		$this->assertEquals('<script type="text/javascript" src="assets/js/91e30b9b77dc616476b94acf4dbb25c1.min.js"></script>'.PHP_EOL, $result, 'deploy js with custom save path');
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/91e30b9b77dc616476b94acf4dbb25c1.min.js"></script>', $result, 'deploy js with custom save path');
 	}
 
 	//
@@ -195,7 +276,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$this->minify->css(array('style.css'));
 
 		$result = $this->minify->deploy_css(TRUE, 'auto');
-		$this->assertEquals('<link href="assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />' . PHP_EOL, $result, 'deploy css with custom save path');
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/72ac8bfd7cb9dd0f9df9ef4aafe0c714.min.css" rel="stylesheet" type="text/css" />', $result, 'deploy css with custom save path');
 	}
 
 	public function testCssCompressWithGroupNames()
@@ -239,6 +320,8 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 	{
 		$this->minify = new Minify();
 
+		unlink(APPPATH.'../assets/js/scripts.min.js');
+
 		$this->minify->assets_dir_js = 'assets/js';
 		$this->minify->versioning = TRUE;
 		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
@@ -246,7 +329,7 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 		$result = $this->minify->deploy_js(FALSE);
 		$this->assertTrue(is_string($result), 'deploy js with versioning');
 
-		$this->assertEquals('<script type="text/javascript" src="assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>'.PHP_EOL, $result, 'output js default file name with version');
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>', $result, 'output js default file name with version');
 	}
 
 	// test versioning css
@@ -254,13 +337,152 @@ class MinifyTest extends PHPUnit_Framework_TestCase {
 	{
 		$this->minify = new Minify();
 
-		$this->minify->assets_dir_js = 'assets/css';
+		unlink(APPPATH.'../assets/css/styles.min.css');
+
+		$this->minify->assets_dir_css = 'assets/css';
 		$this->minify->versioning = TRUE;
 		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
 
 		$result = $this->minify->deploy_css(TRUE);
 		$this->assertTrue(is_string($result), 'deploy css with versioning');
 
-		$this->assertEquals('<link href="/tmp/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />' . PHP_EOL, $result, 'output css default file name with versioning');
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name with versioning');
 	}
+
+	// test versioning js with custom version number
+	public function testJsVersioningCustomNumber()
+	{
+		$this->minify = new Minify();
+
+		unlink(APPPATH.'../assets/js/scripts.min.js');
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->versioning = TRUE;
+		$this->minify->version_number = '12345';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy js with versioning');
+
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=12345"></script>', $result, 'output js default file name with custom version number');
+	}
+
+	// test versioning css with custom version number
+	public function testCssVersioningCustomNumber()
+	{
+		$this->minify = new Minify();
+
+		unlink(APPPATH.'../assets/css/styles.min.css');
+
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->versioning = TRUE;
+		$this->minify->version_number = '12345';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_string($result), 'deploy css with versioning');
+
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=12345" rel="stylesheet" type="text/css" />', $result, 'output css default file name with custom version number');
+	}
+
+	// test deploy on change js
+	public function testJsDeployOnChangeFalse()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->versioning = TRUE;
+
+		// deploy on change turned off
+		$this->minify->deploy_on_change = FALSE;
+		$this->minify->js(array('helpers.js'));
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_string($result), 'deploy js with deploy_on_change = FALSE');
+
+		$this->assertEquals('<script type="text/javascript" src="http://minify.localhost/assets/js/scripts.min.js?v=a6a391594c356eb31f44360b30b40c6b"></script>', $result, 'output js default file name without deploy_on_change');
+	}
+
+	// test deploy on change css
+	public function testCssDeployOnChangeFalse()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->versioning = TRUE;
+
+		// deploy on change turned off
+		$this->minify->deploy_on_change = FALSE;
+		$this->minify->css(array('style.css'));
+
+		$result = $this->minify->deploy_css(FALSE);
+		$this->assertTrue(is_string($result), 'deploy css with deploy_on_change = FALSE');
+
+		$this->assertEquals('<link href="http://minify.localhost/assets/css/styles.min.css?v=bde54117b391ceca3436e85e7ddf1851" rel="stylesheet" type="text/css" />', $result, 'output css default file name without deploy_on_change');
+	}
+
+	// test js with custom base url
+	public function testJsWithChangedBaseUrl()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->base_url = 'http://cdn1.minify.localhost/';
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_array($result), 'deploy with add_js');
+
+		$this->assertEquals(array('http://cdn1.minify.localhost/assets/js/scripts.min.js'), $result, 'output js with no html tags and custom base_url');
+	}
+
+	// test css with custom base url
+	public function testCssWithChangedBaseUrl()
+	{
+		$this->minify = new Minify();
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->base_url = 'http://cdn2.minify.localhost';
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_array($result), 'deploy with add_css');
+
+		$this->assertEquals(array('http://cdn2.minify.localhost/assets/css/styles.min.css'), $result, 'output css with no html tags and custom base_url');
+	}
+
+	// test js with custom config in constructor
+	public function testJsWithCustomConstructorConfig()
+	{
+		$config = array('js_file' => 'changed_scripts.js');
+		$this->minify = new Minify($config);
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_js = 'assets/js';
+		$this->minify->add_js(array('helpers.js'))->add_js('jqModal.js');
+
+		$result = $this->minify->deploy_js(FALSE);
+		$this->assertTrue(is_array($result), 'deploy with add_js');
+
+		$this->assertEquals(array('http://minify.localhost/assets/js/changed_scripts.min.js'), $result, 'output js with no html tags');
+	}
+
+	// test css with custom config in constructor
+	public function testCssWithCustomConstructorConfig()
+	{
+		$config = array('css_file' => 'changed_styles.css');
+		$this->minify = new Minify($config);
+
+		$this->minify->html_tags = FALSE;
+		$this->minify->assets_dir_css = 'assets/css';
+		$this->minify->add_css(array('style.css'))->add_css('browser-specific.css');
+
+		$result = $this->minify->deploy_css(TRUE);
+		$this->assertTrue(is_array($result), 'deploy with add_css');
+
+		$this->assertEquals(array('http://minify.localhost/assets/css/changed_styles.min.css'), $result, 'output css with no html tags');
+	}
+
 }
