@@ -12,7 +12,7 @@
  * @link      Location: http://github.com/slav123/CodeIgniter-Minify
  */
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 /**
  * the Minify LibraryClass
@@ -24,8 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @license   Copyright 2015 All Rights Reserved SpiderSoft
  * @link      http://www.spidersoft.com.au
  */
-class Minify
-{
+class Minify {
 	/**
 	 * CodeIgniter global.
 	 *
@@ -229,7 +228,8 @@ class Minify
 		$this->versioning         = $this->ci->config->item('versioning', 'minify') ?: $this->versioning;
 		$this->version_number     = $this->ci->config->item('version_number', 'minify') ?: $this->version_number;
 		$this->compress           = $this->ci->config->item('compress', 'minify') ?: $this->compress;
-		$this->compression_engine = $this->ci->config->item('compression_engine', 'minify') ?: $this->compression_engine;
+		$this->compression_engine = $this->ci->config->item('compression_engine',
+		                                                    'minify') ?: $this->compression_engine;
 		$this->closurecompiler    = $this->ci->config->item('closurecompiler', 'minify') ?: $this->closurecompiler;
 
 		if (count($config) > 0)
@@ -245,15 +245,12 @@ class Minify
 		}
 
 		// save default names for later use/reset
-		$this->css_file_default   = $this->css_file;
-		$this->js_file_default    = $this->js_file;
+		$this->css_file_default = $this->css_file;
+		$this->js_file_default  = $this->js_file;
 
 
-		
 		log_message('debug', "Minify Class Initialized");
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Declare css files list
@@ -269,7 +266,7 @@ class Minify
 		{
 			$this->css_array[$group] = $css;
 		}
-		else 
+		else
 		{
 			$this->css_array[$group] = array_map('trim', explode(',', $css));
 		}
@@ -291,7 +288,7 @@ class Minify
 		{
 			$this->js_array[$group] = $js;
 		}
-		else 
+		else
 		{
 			$this->js_array[$group] = array_map('trim', explode(',', $js));
 		}
@@ -318,15 +315,14 @@ class Minify
 		{
 			$this->css_array[$group] = array_unique(array_merge($this->css_array[$group], $css));
 		}
-		else 
+		else
 		{
-			$this->css_array[$group] = array_unique(array_merge($this->css_array[$group], array_map('trim', explode(',', $css))));
+			$this->css_array[$group] = array_unique(array_merge($this->css_array[$group],
+			                                                    array_map('trim', explode(',', $css))));
 		}
 
 		return $this;
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Declare js files list
@@ -347,9 +343,10 @@ class Minify
 		{
 			$this->js_array[$group] = array_unique(array_merge($this->js_array[$group], $js));
 		}
-		else 
+		else
 		{
-			$this->js_array[$group] = array_unique(array_merge($this->js_array[$group], array_map('trim', explode(',', $js))));
+			$this->js_array[$group] = array_unique(array_merge($this->js_array[$group],
+			                                                   array_map('trim', explode(',', $js))));
 		}
 
 		return $this;
@@ -443,7 +440,7 @@ class Minify
 			return $this->_simple_output('css', $group);
 		}
 
-		if ($this->auto_names OR $file_name === 'auto')
+		if ($this->auto_names or $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->css_array[$group])) . '.css';
 		}
@@ -480,7 +477,7 @@ class Minify
 			return $this->_simple_output('js', $group);
 		}
 
-		if ($this->auto_names OR $file_name === 'auto')
+		if ($this->auto_names or $file_name === 'auto')
 		{
 			$file_name = md5(serialize($this->js_array[$group])) . '.js';
 		}
@@ -517,7 +514,7 @@ class Minify
 
 				if ($this->compress)
 				{
-					if ( ! preg_match("/\.min\.js$/", $value)) 
+					if ( ! preg_match("/\.min\.js$/", $value))
 					{
 						$value = str_replace('.js', '.min.js', $value);
 					}
@@ -526,7 +523,7 @@ class Minify
 				}
 
 				// determine if we have special dir for js specified
-				$assets_dir = empty($this->assets_dir_js) ? $this->assets_dir : $this->assets_dir_js;
+				$assets_dir     = empty($this->assets_dir_js) ? $this->assets_dir : $this->assets_dir_js;
 				$this->_js_file = $assets_dir . '/' . $value;
 
 				if ( ! file_exists($this->_js_file) && ! touch($this->_js_file))
@@ -538,12 +535,12 @@ class Minify
 					$this->_lmod['js'] = filemtime($this->_js_file);
 				}
 
-				break;
+			break;
 			case 'css_file':
 
 				if ($this->compress)
 				{
-					if ( ! preg_match("/\.min\.css$/", $value)) 
+					if ( ! preg_match("/\.min\.css$/", $value))
 					{
 						$value = str_replace('.css', '.min.css', $value);
 					}
@@ -552,7 +549,7 @@ class Minify
 				}
 
 				// determine if we have special dir for css specified
-				$assets_dir = empty($this->assets_dir_css) ? $this->assets_dir : $this->assets_dir_css;
+				$assets_dir      = empty($this->assets_dir_css) ? $this->assets_dir : $this->assets_dir_css;
 				$this->_css_file = $assets_dir . '/' . $value;
 
 				if ( ! file_exists($this->_css_file) && ! touch($this->_css_file))
@@ -564,7 +561,7 @@ class Minify
 					$this->_lmod['css'] = filemtime($this->_css_file);
 				}
 
-				break;
+			break;
 		}
 	}
 
@@ -584,7 +581,7 @@ class Minify
 				$files_array = $this->css_array[$group];
 				$directory   = $this->css_dir;
 				$out_file    = $this->_css_file;
-				break;
+			break;
 			case 'js':
 				$files_array = $this->js_array[$group];
 				$directory   = $this->js_dir;
@@ -618,7 +615,7 @@ class Minify
 				$force = TRUE;
 			}
 
-			if ($compile OR $force)
+			if ($compile or $force)
 			{
 				$this->_concat_files($files_array, $directory, $out_file);
 			}
@@ -639,10 +636,10 @@ class Minify
 		switch ($type)
 		{
 			case 'css':
-				$template  = $this->css_tag;
-				break;
+				$template = $this->css_tag;
+			break;
 			case 'js':
-				$template  = $this->js_tag;
+				$template = $this->js_tag;
 		}
 
 		$output = array();
@@ -677,7 +674,7 @@ class Minify
 				$files     = $this->css_array[$group];
 				$directory = $this->css_dir;
 				$template  = $this->css_tag;
-				break;
+			break;
 			case 'js':
 				$files     = $this->js_array[$group];
 				$directory = $this->js_dir;
@@ -721,8 +718,10 @@ class Minify
 				$contents  = file_get_contents($file_name);
 
 				// if this is javascript file, check if we have ; at the end
-				if (preg_match("/.js$/i", $out_file)) {
-					if (substr(rtrim($contents), -1) !== ';') {
+				if (preg_match("/.js$/i", $out_file))
+				{
+					if (substr(rtrim($contents), - 1) !== ';')
+					{
 						$contents .= ';';
 					}
 
@@ -778,7 +777,8 @@ class Minify
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'output_info=compiled_code&output_info=errors&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
+		curl_setopt($ch, CURLOPT_POSTFIELDS,
+		            'output_info=compiled_code&output_info=errors&output_format=text&compilation_level=' . $config['compilation_level'] . '&js_code=' . urlencode($data));
 		$output = curl_exec($ch);
 		curl_close($ch);
 
@@ -839,11 +839,11 @@ class Minify
 	 *
 	 * @return string
 	 */
-	private function _minify($data) 
+	private function _minify($data)
 	{
 		require_once(APPPATH . 'libraries/minify/cssminify.php');
 		$cssminify = new cssminify();
-		
+
 		return $cssminify->compress($data);
 	}
 
@@ -854,7 +854,7 @@ class Minify
 	 *
 	 * @return string
 	 */
-	private function _base_url($file) 
+	private function _base_url($file)
 	{
 		if ($this->base_url === '')
 		{
@@ -867,7 +867,7 @@ class Minify
 	/**
 	 * Perform config checks
 	 *
-	 * @param $type CSS / JS check
+	 * @param $type string CSS / JS check
 	 *
 	 * @return void
 	 * @throws Exception
@@ -875,7 +875,8 @@ class Minify
 	private function _config_checks($type)
 	{
 
-		switch ($type) {
+		switch ($type)
+		{
 			case 'css':
 				if (empty($this->assets_dir_css) && ! is_writable($this->assets_dir))
 				{
@@ -903,7 +904,7 @@ class Minify
 
 				if ($this->compress)
 				{
-					if ( ! isset($this->compression_engine['css']) OR empty($this->compression_engine['css']))
+					if ( ! isset($this->compression_engine['css']) or empty($this->compression_engine['css']))
 					{
 						throw new Exception('Compression engine for CSS is required');
 					}
@@ -929,7 +930,6 @@ class Minify
 				if ( ! $this->auto_names)
 				{
 
-
 					if (empty($this->js_file))
 					{
 						throw new Exception('JS file name can\'t be empty');
@@ -937,14 +937,12 @@ class Minify
 				}
 				if ($this->compress)
 				{
-
-
-					if ( ! isset($this->compression_engine['js']) OR empty($this->compression_engine['js']))
+					if ( ! isset($this->compression_engine['js']) or empty($this->compression_engine['js']))
 					{
 						throw new Exception('Compression engine for JS is required');
 					}
 
-					if ($this->compression_engine['js'] === 'closurecompiler' && ( ! isset($this->closurecompiler['compilation_level']) OR empty($this->closurecompiler['compilation_level'])))
+					if ($this->compression_engine['js'] === 'closurecompiler' && ( ! isset($this->closurecompiler['compilation_level']) or empty($this->closurecompiler['compilation_level'])))
 					{
 						throw new Exception('Compilation level for closurecompiler is needed');
 					}
@@ -963,7 +961,7 @@ class Minify
 	 */
 	private function _version_number($file)
 	{
-		if ( ! empty($this->version_number) )
+		if ( ! empty($this->version_number))
 		{
 			return $this->version_number;
 		}
