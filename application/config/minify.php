@@ -82,7 +82,7 @@ $config['compress'] = TRUE;
 
 // compression engine setting (default values: 'minify' and 'closurecompiler')
 $config['compression_engine'] = array(
-	'css' => 'minify', // minify || cssmin
+	'css' => 'cssmin', // minify || cssmin
 	'js'  => 'closurecompiler' // closurecompiler || jsmin || jsminplus
 );
 

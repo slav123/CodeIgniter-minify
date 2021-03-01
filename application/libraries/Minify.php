@@ -248,8 +248,7 @@ class Minify
 		$this->css_file_default   = $this->css_file;
 		$this->js_file_default    = $this->js_file;
 
-		// perform checks
-		$this->_config_checks();
+
 		
 		log_message('debug', "Minify Class Initialized");
 	}
@@ -262,7 +261,7 @@ class Minify
 	 * @param mixed $css   File or files names
 	 * @param bool  $group Set group for files
 	 *
-	 * @return void
+	 * @return Minify
 	 */
 	public function css($css, $group = 'default')
 	{
@@ -284,7 +283,7 @@ class Minify
 	 * @param mixed $js    File or files names
 	 * @param bool  $group Set group for files
 	 *
-	 * @return void
+	 * @return Minify
 	 */
 	public function js($js, $group = 'default')
 	{
@@ -300,15 +299,13 @@ class Minify
 		return $this;
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Declare css files list
 	 *
 	 * @param mixed $css   File or files names
 	 * @param bool  $group Set group for files
 	 *
-	 * @return void
+	 * @return Minify
 	 */
 	public function add_css($css, $group = 'default')
 	{
@@ -337,7 +334,7 @@ class Minify
 	 * @param mixed $js    File or files names
 	 * @param bool  $group Set group for files
 	 *
-	 * @return void
+	 * @return Minify
 	 */
 	public function add_js($js, $group = 'default')
 	{
@@ -358,8 +355,6 @@ class Minify
 		return $this;
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Deploy and minify CSS
 	 *
@@ -371,6 +366,9 @@ class Minify
 	 */
 	public function deploy_css($force = TRUE, $file_name = NULL, $group = NULL)
 	{
+		// perform checks
+		$this->_config_checks('css');
+
 		$return = array();
 
 		if (is_null($file_name))
@@ -393,8 +391,6 @@ class Minify
 		return $this->_output($return, 'css');
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Deploy and minify js
 	 *
@@ -406,6 +402,9 @@ class Minify
 	 */
 	public function deploy_js($force = FALSE, $file_name = NULL, $group = NULL)
 	{
+		// perform checks
+		$this->_config_checks('js');
+
 		$return = array();
 
 		if (is_null($file_name))
@@ -427,8 +426,6 @@ class Minify
 
 		return $this->_output($return, 'js');
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Build and minify CSS
@@ -467,8 +464,6 @@ class Minify
 		return [$this->_css_file];
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Build and minify js
 	 *
@@ -505,8 +500,6 @@ class Minify
 
 		return [$this->_js_file];
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * construct js_file and css_file
@@ -708,8 +701,6 @@ class Minify
 		return $output;
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * add merge files
 	 *
@@ -770,8 +761,6 @@ class Minify
 		}
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Compress javascript using closure compiler service
 	 *
@@ -801,8 +790,6 @@ class Minify
 		return $output;
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Implements jsmin as alternative to closure compiler
 	 *
@@ -816,8 +803,6 @@ class Minify
 
 		return JSMin::minify($data);
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Implements jsminplus as alternative to closure compiler
@@ -833,8 +818,6 @@ class Minify
 		return JSMinPlus::minify($data);
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Implements cssmin compression engine
 	 *
@@ -848,8 +831,6 @@ class Minify
 
 		return CssMin::minify($data);
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Implements cssminify compression engine
@@ -865,8 +846,6 @@ class Minify
 		
 		return $cssminify->compress($data);
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Build correct URL for file
@@ -885,83 +864,95 @@ class Minify
 		return rtrim($this->base_url, '/') . '/' . $file;
 	}
 
-	//--------------------------------------------------------------------
-
 	/**
 	 * Perform config checks
 	 *
+	 * @param $type CSS / JS check
+	 *
 	 * @return void
+	 * @throws Exception
 	 */
-	private function _config_checks()
+	private function _config_checks($type)
 	{
-		if ((empty($this->assets_dir_css) OR empty($this->assets_dir_js)) && ! is_writable($this->assets_dir))
-		{
-			throw new Exception('Assets directory ' . $this->assets_dir . ' is not writable');
+
+		switch ($type) {
+			case 'css':
+				if (empty($this->assets_dir_css) && ! is_writable($this->assets_dir))
+				{
+					throw new Exception('Assets directory ' . $this->assets_dir . ' is not writable');
+				}
+				if ( ! empty($this->assets_dir_css) && ! is_writable($this->assets_dir_css))
+				{
+					throw new Exception('Assets directory for css ' . $this->assets_dir_css . ' is not writable');
+				}
+				if (empty($this->css_dir))
+				{
+					throw new Exception('CSS directory must be set');
+				}
+				if ($this->html_tags === TRUE && empty($this->css_tag))
+				{
+					throw new Exception('CSS tag template must be set');
+				}
+				if ( ! $this->auto_names)
+				{
+					if (empty($this->css_file))
+					{
+						throw new Exception('CSS file name can\'t be empty');
+					}
+				}
+
+				if ($this->compress)
+				{
+					if ( ! isset($this->compression_engine['css']) OR empty($this->compression_engine['css']))
+					{
+						throw new Exception('Compression engine for CSS is required');
+					}
+				}
+			break;
+			case 'js':
+				if (empty($this->assets_dir_js) && ! is_writable($this->assets_dir))
+				{
+					throw new Exception('Assets directory ' . $this->assets_dir . ' is not writable');
+				}
+				if ( ! empty($this->assets_dir_js) && ! is_writable($this->assets_dir_js))
+				{
+					throw new Exception('Assets directory for js ' . $this->assets_dir_js . ' is not writable');
+				}
+				if (empty($this->js_dir))
+				{
+					throw new Exception('JS directory must be set');
+				}
+				if ($this->html_tags === TRUE && empty($this->js_tag))
+				{
+					throw new Exception('JS tag template must be set');
+				}
+				if ( ! $this->auto_names)
+				{
+
+
+					if (empty($this->js_file))
+					{
+						throw new Exception('JS file name can\'t be empty');
+					}
+				}
+				if ($this->compress)
+				{
+
+
+					if ( ! isset($this->compression_engine['js']) OR empty($this->compression_engine['js']))
+					{
+						throw new Exception('Compression engine for JS is required');
+					}
+
+					if ($this->compression_engine['js'] === 'closurecompiler' && ( ! isset($this->closurecompiler['compilation_level']) OR empty($this->closurecompiler['compilation_level'])))
+					{
+						throw new Exception('Compilation level for closurecompiler is needed');
+					}
+				}
+			break;
 		}
 
-		if ( ! empty($this->assets_dir_css) && ! is_writable($this->assets_dir_css))
-		{
-			throw new Exception('Assets directory for css ' . $this->assets_dir_css . ' is not writable');
-		}
-
-		if ( ! empty($this->assets_dir_js) && ! is_writable($this->assets_dir_js))
-		{
-			throw new Exception('Assets directory for js ' . $this->assets_dir_js . ' is not writable');
-		}
-
-		if (empty($this->css_dir))
-		{
-			throw new Exception('CSS directory must be set');
-		}
-
-		if (empty($this->js_dir))
-		{
-			throw new Exception('JS directory must be set');
-		}
-
-		if ($this->html_tags === TRUE && empty($this->css_tag))
-		{
-			throw new Exception('CSS tag template must be set');
-		}
-
-		if ($this->html_tags === TRUE && empty($this->js_tag))
-		{
-			throw new Exception('JS tag template must be set');
-		}
-
-		if ( ! $this->auto_names)
-		{
-			if (empty($this->css_file))
-			{
-				throw new Exception('CSS file name can\'t be empty');
-			}
-
-			if (empty($this->js_file))
-			{
-				throw new Exception('JS file name can\'t be empty');
-			}
-		}
-
-		if ($this->compress)
-		{
-			if ( ! isset($this->compression_engine['css']) OR empty($this->compression_engine['css']))
-			{
-				throw new Exception('Compression engine for CSS is required');
-			}
-
-			if ( ! isset($this->compression_engine['js']) OR empty($this->compression_engine['js']))
-			{
-				throw new Exception('Compression engine for JS is required');
-			}
-
-			if ($this->compression_engine['js'] === 'closurecompiler' && ( ! isset($this->closurecompiler['compilation_level']) OR empty($this->closurecompiler['compilation_level'])))
-			{
-				throw new Exception('Compilation level for closurecompiler is needed');
-			}
-		}
 	}
-
-	//--------------------------------------------------------------------
 
 	/**
 	 * Get Version Number for file

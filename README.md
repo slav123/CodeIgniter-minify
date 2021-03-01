@@ -7,7 +7,7 @@ or <https://code.google.com/p/cssmin> to minify CSS and it uses
 [Google Closure compiler](https://developers.google.com/closure/compiler/) to 
 compress JavaScript
 
-## Instalation
+## Installation
 Just put `Minify.php` file in libraries path, and create `minify.php` config file on config directory.
 
 ## Using the library
@@ -157,6 +157,10 @@ echo $this->minify->deploy_js();
     
 ## Changelog
 
+01 Mar 2021
+* comments fixing
+* config checks only when deploy
+
 26 Jul 2019
 * added option to manually change version number for assets (thanks [screamingjungle](https://github.com/screamingjungle))
 
@@ -184,7 +188,7 @@ echo $this->minify->deploy_js();
 * introduce option to save compiled css and js files in different folders - new config variables: `$config['assets_dir_css']` and `$config['assets_dir_js']`.
 
 29 Apr 2015
-* allow to use automatic file name for particular deploy when you have `$config['auto_names']` set to `FALSE`
+* allow using automatic file name for particular deploy when you have `$config['auto_names']` set to `FALSE`
 * documentation update
 
 20 Apr 2015
